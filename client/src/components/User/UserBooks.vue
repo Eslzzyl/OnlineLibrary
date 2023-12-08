@@ -110,17 +110,18 @@ import axiosInstance from '@/plugins/util/axiosInstance'
 import { ref, watch } from 'vue';
 
 const tableData = ref([])
+
 const search = ref('')
-const loading = ref(true)
+
 const totalItems = ref(0)
 const itemsPerPage = ref(10)
-const isErrorHappened = ref(false)
 const pageCount = ref(0)
 const page = ref(0)
 const sortBy = ref([])
 
 const requestError = ref(null)
-
+const isErrorHappened = ref(false)
+const loading = ref(true)
 const dialog = ref(false)
 const currItem = ref(null)
 
@@ -140,44 +141,44 @@ watch(page, () => {
 
 const headers = ref([
   {
-    title: '姓名',
-    align: 'center',
-    sortable: false,
-    key: 'name'
-  },
-  {
-    title: '年级',
+    title: '书名',
     align: 'center',
     sortable: true,
-    key: 'grade',
+    key: 'title'
   },
   {
-    title: '专业',
+    title: '作者',
+    align: 'center',
+    sortable: true,
+    key: 'author',
+  },
+  {
+    title: '出版社',
+    align: 'center',
+    sortable: true,
+    key: 'publisher',
+  },
+  {
+    title: '索书号',
+    align: 'center',
+    sortable: true,
+    key: 'identifier',
+  },
+  {
+    title: '在馆数量',
     align: 'center',
     sortable: false,
-    key: 'major',
+    key: 'inventory',
   },
   {
-    title: '去向类型',
-    align: 'center',
-    sortable: false,
-    key: 'goneType',
-  },
-  {
-    title: '去向',
-    align: 'center',
-    sortable: false,
-    key: 'gone',
-  },
-  {
-    title: '详情',
+    title: '操作',
     align: 'center',
     sortable: false,
     key: 'moreInfo',
   },
 ])
 
-async function request({ page, itemsPerPage, sortBy, search }) {
+async function request(page, itemsPerPage, sortBy, search) {
   try {
     const response = await axiosInstance.post('/user/table', {
       page: page,
@@ -188,11 +189,10 @@ async function request({ page, itemsPerPage, sortBy, search }) {
     console.log(response)
 
     if (response.data.code === 1) {
-      console.log('请求成功，请求到' + response.data.data.length + '条信息')
       return response.data
     } else {
       isErrorHappened.value = true
-      console.log('请求失败！')
+      console.error('请求失败！')
     }
   } catch (error) {
     console.log(error)
@@ -203,15 +203,7 @@ async function request({ page, itemsPerPage, sortBy, search }) {
 
 async function loadItems({ page, itemsPerPage, sortBy }) {
   loading.value = true
-  console.log(page)
-  console.log(itemsPerPage)
-  console.log(sortBy)
-  const result = await request({
-    page,
-    itemsPerPage,
-    sortBy,
-    search: search.value
-  })
+  const result = await request(page, itemsPerPage, sortBy, search.value)
   console.log("result: ", result)
   pageCount.value = result.pageCount
   const packedData = result.data

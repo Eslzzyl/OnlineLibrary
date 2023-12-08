@@ -5,17 +5,21 @@
         <!--如果要加背景图片，就用：-->
         <!-- <v-navigation-drawer image="https://cdn.vuetifyjs.com/images/backgrounds/bg-2.jpg" permanent theme="light"> -->
         <v-sheet color="indigo-lighten-5" class="pa-4" rounded="xl">
-          <v-avatar :image="studentAvatar !== '' ? studentAvatar : '/avatar/chino.jpg'" size="64" class="mb-4"></v-avatar>
-          <div>{{ studentName }}</div>
+          <v-avatar :image="userAvatar" size="64" class="mb-4"></v-avatar>
+          <div>{{ userName }}</div>
         </v-sheet>
 
-        <v-list nav>
+        <v-list :nav="true">
           <!-- <v-list-subheader v-if="!rail">毕业生去向信息共享系统</v-list-subheader>
           <v-list-subheader v-if="rail"></v-list-subheader> -->
-          <v-list-item prepend-icon="mdi-home" title="主页" value="home" rounded="xl"
-            @click="changeView(Home);"></v-list-item>
-          <v-list-item prepend-icon="mdi-table" title="表格" value="table" rounded="xl"
-            @click="changeView(Table);"></v-list-item>
+          <v-list-item prepend-icon="mdi-home" title="主页" value="user_home" rounded="xl"
+            @click="changeView(UserHome);"></v-list-item>
+          <v-list-item prepend-icon="mdi-book-search-outline" title="查看书籍" value="user_books" rounded="xl"
+            @click="changeView(UserBooks);"></v-list-item>
+          <v-list-item prepend-icon="mdi-book-open-page-variant-outline" title="当前借阅" value="user_current_borrow" rounded="xl"
+            @click="changeView(UserCurrentBorrow);"></v-list-item>
+          <v-list-item prepend-icon="mdi-book-open-variant" title="借阅历史" value="user_borrow_history" rounded="xl"
+            @click="changeView(UserBorrowHistory);"></v-list-item>
           <v-list-item prepend-icon="mdi-account" title="个人信息" value="user_account" rounded="xl"
             @click="changeView(UserAccount);"></v-list-item>
         </v-list>
@@ -24,7 +28,7 @@
           <div class="pa-2" style="width: 70%; margin: 0 auto;">
             <v-dialog width="500">
               <template v-slot:activator="{ props }">
-                <v-btn block v-bind="props" variant="tonal">登出</v-btn>
+                <v-btn :block="true" v-bind="props" variant="tonal">登出</v-btn>
               </template>
 
               <template v-slot:default="{ isActive }">
@@ -36,7 +40,7 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn text="取消" @click="isActive.value = false;"></v-btn>
-                    <v-btn text="确定" @click="isActive.value = false; logout()"></v-btn>
+                    <v-btn text="确定" @click="isActive.value = false; logout();"></v-btn>
                   </v-card-actions>
                 </v-card>
               </template>
@@ -48,7 +52,7 @@
       <v-main style="height: 100vh; overflow-y: auto;">
         <v-container>
           <v-slide-x-transition>
-            <component :is="currentView" @change-avatar="(avatar: string) => { studentAvatar = avatar; console.log(studentAvatar) }"></component>
+            <component :is="currentView" @change-avatar="(avatar: string) => { userAvatar = avatar; console.log(userAvatar) }"></component>
           </v-slide-x-transition>
         </v-container>
       </v-main>
@@ -58,35 +62,38 @@
 
 <script setup lang="ts">
 
-import Home from './Home.vue'
-import UserAccount from './UserAccount.vue'
-import Table from './Table.vue'
+import UserHome from './UserHome.vue';
+import UserAccount from './UserAccount.vue';
+import UserBooks from './UserBooks.vue';
+import UserBorrowHistory from './UserBorrowHistory.vue';
+import UserCurrentBorrow from './UserCurrentBorrow.vue';
 
-import { ref, shallowRef, onMounted } from 'vue'
+import { ref, shallowRef, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 // https://router.vuejs.org/zh/guide/advanced/composition-api.html
 const router = useRouter()
 
 const currentView = shallowRef()
-const studentName = ref<string | undefined>('')
-const studentAvatar = ref<string | undefined>('')
+const userName = ref<string | undefined>('')
+const userAvatar = ref<string | undefined>('')
 
 function changeView(view: any) {
   currentView.value = view
 }
 
 function logout() {
-  window.localStorage.removeItem("name")
-  window.localStorage.removeItem("avatar")
-  window.localStorage.removeItem("token")
-  router.push('/')
+  window.localStorage.removeItem("name");
+  window.localStorage.removeItem("avatar");
+  window.localStorage.removeItem("token");
+  window.localStorage.removeItem("id");
+  router.push('/');
 }
 
 onMounted(() => {
-  studentName.value = window.localStorage.getItem("name") as string;
-  studentAvatar.value = window.localStorage.getItem("avatar") as string;
-  currentView.value = Home
+  userName.value = window.localStorage.getItem("name") as string;
+  userAvatar.value = window.localStorage.getItem("avatar") as string;
+  currentView.value = UserHome
 })
 
 </script>

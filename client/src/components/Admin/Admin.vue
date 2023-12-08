@@ -5,17 +5,19 @@
         <!--如果要加背景图片，就用：-->
         <!-- <v-navigation-drawer image="https://cdn.vuetifyjs.com/images/backgrounds/bg-2.jpg" permanent theme="light"> -->
         <v-sheet color="indigo-lighten-5" class="pa-4" rounded="xl">
-          <v-avatar :image="managerAvatar !== '' ? managerAvatar : '/avatar/alice.jpg'" size="64" class="mb-4"></v-avatar>
-          <div>{{ managerName }}</div>
+          <v-avatar :image="adminAvatar" size="64" class="mb-4"></v-avatar>
+          <div>{{ adminName }}</div>
         </v-sheet>
 
         <v-list nav>
-          <v-list-item prepend-icon="mdi-table" title="书籍管理" value="users" rounded="xl"
-            @click="changeView(ManageBooks);"></v-list-item>
-          <v-list-item prepend-icon="mdi-table" title="用户管理" value="users" rounded="xl"
-            @click="changeView(ManageUsers);"></v-list-item>
-          <v-list-item prepend-icon="mdi-table" title="日志管理" value="users" rounded="xl"
-            @click="changeView(Logs);"></v-list-item>
+          <v-list-item prepend-icon="mdi-book-search-outline" title="书籍管理" value="admin_books" rounded="xl"
+            @click="changeView(AdminBooks);"></v-list-item>
+          <v-list-item prepend-icon="mdi-account-cog-outline" title="用户管理" value="admin_users" rounded="xl"
+            @click="changeView(AdminUsers);"></v-list-item>
+          <v-list-item prepend-icon="mdi-text-box-outline" title="日志管理" value="admin_logs" rounded="xl"
+            @click="changeView(AdminLogs);"></v-list-item>
+          <v-list-item prepend-icon="mdi-account-tie" title="个人信息" value="admin_account" rounded="xl"
+            @click="changeView(AdminAccount);"></v-list-item>
         </v-list>
 
         <template v-slot:append>
@@ -47,7 +49,7 @@
         <v-container>
           <v-slide-x-transition>
             <component :is="currentView"
-              @change-avatar="(avatar: string) => { managerAvatar = avatar; console.log(managerAvatar) }"></component>
+              @change-avatar="(avatar: string) => { adminAvatar = avatar; console.log(adminAvatar) }"></component>
           </v-slide-x-transition>
         </v-container>
       </v-main>
@@ -57,18 +59,19 @@
 
 <script setup lang="ts">
 
-import { ref, shallowRef, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, shallowRef, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-import ManageBooks from './ManageBooks.vue'
-import ManageUsers from './ManageUsers.vue'
-import Logs from './Logs.vue'
+import AdminBooks from './AdminBooks.vue';
+import AdminUsers from './AdminUsers.vue';
+import AdminLogs from './AdminLogs.vue';
+import AdminAccount from './AdminAccount.vue';
 
 const router = useRouter()
 
 const currentView = shallowRef()
-const managerName = ref<string | undefined>('')
-const managerAvatar = ref<string | undefined>('')
+const adminName = ref<string | undefined>('')
+const adminAvatar = ref<string | undefined>('')
 
 function changeView(view: any) {
   currentView.value = view;
@@ -78,12 +81,14 @@ function logout() {
   window.localStorage.removeItem("name");
   window.localStorage.removeItem("id");
   window.localStorage.removeItem("token");
+  window.localStorage.removeItem("avatar");
+  router.push('/');
 }
 
 onMounted(() => {
-  managerName.value = window.localStorage.getItem("name") as string;
-  managerAvatar.value = '';
-  currentView.value = ManageBooks;
+  adminName.value = window.localStorage.getItem("name") as string;
+  adminAvatar.value = '';
+  currentView.value = AdminBooks;
 })
 
 </script>

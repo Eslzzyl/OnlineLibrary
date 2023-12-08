@@ -8,7 +8,7 @@
           <span class="mx-auto mt-2 header">网上图书馆</span>
         </v-row>
         <v-row>
-          <v-tabs v-model="currComponent" :color="getSkyColor" align-tabs="center">
+          <v-tabs v-model="currComponent" :color="skyColor" align-tabs="center">
             <v-tab :value="Login">登录</v-tab>
             <v-tab :value="Register">注册</v-tab>
           </v-tabs>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, onBeforeUnmount, ref} from 'vue'
+import {onMounted, onBeforeUnmount, ref, shallowRef} from 'vue'
 import * as THREE from 'three'
 import GLOBE from "vanta/dist/vanta.globe.min"
 
@@ -29,10 +29,12 @@ import Login from './Login.vue';
 import Register from './Register.vue';
 import {getSkyColor} from "@/plugins/util/color";
 
+const skyColor = getSkyColor();
+
 const vantaRef = ref(null)
 let vantaEffect: any = null
 
-const currComponent = ref<any>()
+const currComponent = shallowRef<any>()
 currComponent.value = Login
 
 onMounted(() => {

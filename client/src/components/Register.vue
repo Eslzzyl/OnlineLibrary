@@ -4,7 +4,7 @@
       <span class="subheader">注册</span>
     </v-row>
     <v-row>
-      <v-form class="form" fast-fail @submit.prevent>
+      <v-form class="form" :fast-fail="true" @submit.prevent>
         <v-container>
           <v-row>
             <v-col class="icon" cols="1">
@@ -20,7 +20,7 @@
             </v-col>
             <v-col cols="11">
               <v-text-field v-model="password" :rules="notNullRule" label="密码"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword"  />
             </v-col>
@@ -31,19 +31,19 @@
             </v-col>
             <v-col cols="11">
               <v-text-field v-model="passwordConfirmed" :rules="passwordRule" label="确认密码"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword" />
             </v-col>
           </v-row>
           <v-row>
-            <v-btn :color="getSkyColor()" class="w-25 mx-auto" type="submit" @click="onRegisterSubmit"
+            <v-btn :color="skyColor" class="w-25 mx-auto" type="submit" @click="onRegisterSubmit"
               :disabled="submitButtonDisabled" :loading="submitButtonLoading">注册</v-btn>
           </v-row>
         </v-container>
       </v-form>
     </v-row>
-    <v-snackbar v-model="snackbar" timeout="5000" rounded="pill" :color="getSkyColor()">
+    <v-snackbar v-model="snackbar" timeout="5000" rounded="pill" :color="skyColor">
       {{ registerPrompt }}
     </v-snackbar>
   </v-container>
@@ -54,6 +54,8 @@ import { ref } from 'vue'
 
 import { getSkyColor } from '@/plugins/util/color';
 import axiosInstance from '@/plugins/util/axiosInstance';
+
+const skyColor = getSkyColor()
 
 const userID = ref<string>('')
 const password = ref<string>('')
@@ -106,7 +108,14 @@ function onRegisterSubmit() {
     registerPrompt.value = "注册成功，请登录";
     snackbar.value = true
   }).catch((error) => {
-    registerPrompt.value = "遇到错误：" + error.response.data.detail;
+    let message;
+    if (typeof error.response !== 'undefined') {   // 后端返回错误的情况
+      message = error.response.data.detail
+    } else {    // axios 本身遇到错误的情况
+      message = error
+    }
+
+    registerPrompt.value = "遇到错误：" + message;
     snackbar.value = true
     console.error('尝试注册时遇到错误：', error)
   })

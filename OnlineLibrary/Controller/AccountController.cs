@@ -96,6 +96,7 @@ public class AccountController(ApplicationDbContext context,
                         signingCredentials: signingCredentials);
 
                     var jwtString = new JwtSecurityTokenHandler().WriteToken(jwtObject);
+                    var avatar = user.Avatar;
                     var roles = await userManager.GetRolesAsync(user);
                     string role;
                     if (roles.Contains("Admin")) {
@@ -111,7 +112,8 @@ public class AccountController(ApplicationDbContext context,
                     return StatusCode(StatusCodes.Status200OK, new LoginResponseDto() {
                         Token = jwtString,
                         UserName = user.UserName,
-                        Role = role
+                        Role = role,
+                        Avatar = avatar
                     });
                 }
             }

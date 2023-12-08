@@ -4,7 +4,7 @@
       <span class="subheader">登录</span>
     </v-row>
     <v-row>
-      <v-form class="form" fast-fail @submit.prevent>
+      <v-form class="form" :fast-fail="true" @submit.prevent>
         <v-container>
           <v-row>
             <v-col class="icon" cols="1">
@@ -20,19 +20,19 @@
             </v-col>
             <v-col cols="11">
               <v-text-field v-model="password" :rules="notNullRule" label="密码"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword" />
             </v-col>
           </v-row>
           <v-row>
-            <v-btn :color="getSkyColor()" class="w-25 mx-auto" type="submit" :disabled="submitButtonDisabled"
+            <v-btn :color="skyColor" class="w-25 mx-auto" type="submit" :disabled="submitButtonDisabled"
               :loading="submitButtonLoading" @click="onLoginSubmit">登录</v-btn>
           </v-row>
         </v-container>
       </v-form>
     </v-row>
-    <v-snackbar v-model="snackbar" timeout="5000" rounded="pill" :color="getSkyColor()">
+    <v-snackbar v-model="snackbar" timeout="5000" rounded="pill" :color="skyColor">
       {{ loginPrompt }}
     </v-snackbar>
   </v-container>
@@ -45,6 +45,8 @@ import { useRouter } from 'vue-router';
 
 import { getSkyColor } from '@/plugins/util/color';
 import axiosInstance from '@/plugins/util/axiosInstance';
+
+const  skyColor = getSkyColor();
 
 const userID = ref<string>('')
 const password = ref<string>('')
@@ -78,10 +80,11 @@ function onLoginSubmit() {
     account: userID.value,
     password: password.value,
   }).then((response) => {
-    const { userName: name, token: token, role: userType } = response.data;
+    const { userName: name, token: token, role: userType, avatar: avatar } = response.data;
     window.localStorage.setItem("name", name);
     window.localStorage.setItem("token", token);
     window.localStorage.setItem("id", userID.value);
+    window.localStorage.setItem("avatar", avatar);
 
     if (userType === 'User') {
       router.push('/user');
@@ -92,7 +95,13 @@ function onLoginSubmit() {
       snackbar.value = true;
     }
   }).catch((error) => {
-    loginPrompt.value = "遇到错误：" + error.response.data.detail;
+    let message;
+    if (typeof error.response !== 'undefined') {   // 后端返回错误的情况
+      message = error.response.data.detail
+    } else {    // axios 本身遇到错误的情况
+      message = error
+    }
+    loginPrompt.value = "遇到错误：" + message;
     snackbar.value = true;
     console.error('尝试注册时遇到错误：', error);
   })

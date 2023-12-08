@@ -48,7 +48,9 @@ public class ApplicationDbContext : IdentityDbContext<ApiUser>
     
     public DbSet<Book> Books => Set<Book>();
     
-    // public DbSet<ApiUser> Users => Set<ApiUser>();
+    // User 属性不再需要，因为类定义时继承了 IdentityDbContext<ApiUser>，这个继承操作已经将 IdentityDbContext 中的 User 属性
+    // 替换为ApiUser，ApiUser 对 IdentityUser 进行的扩展将反映在数据库的 AspNetUsers 表中。
+    // public new DbSet<ApiUser> Users => Set<ApiUser>();
 
     public DbSet<CurrentBorrow> CurrentBorrows => Set<CurrentBorrow>();
 

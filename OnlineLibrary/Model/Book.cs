@@ -1,14 +1,14 @@
-﻿namespace OnlineLibrary.Model;
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+namespace OnlineLibrary.Model;
 
 public class Book
 {
     [Required]
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public int Id { get; init; }
     
     [Required]
     [MaxLength(100)]

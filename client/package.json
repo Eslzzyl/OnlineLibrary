@@ -12,7 +12,6 @@
     "@vue/typescript": "^1.8.20",
     "axios": "^1.6.0",
     "chart.js": "^4.4.0",
-    "crypto-js": "^4.2.0",
     "roboto-fontface": "*",
     "three": "^0.121.0",
     "vanta": "^0.5.24",

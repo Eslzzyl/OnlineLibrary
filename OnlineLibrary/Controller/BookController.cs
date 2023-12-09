@@ -1,12 +1,13 @@
-﻿namespace OnlineLibrary.Controller;
-
-using System.Linq.Dynamic.Core;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Constant;
-using Dto;
-using Model;
+using OnlineLibrary.Constant;
+using OnlineLibrary.Dto;
+using OnlineLibrary.Model;
+using OnlineLibrary.Model.DatabaseContext;
+using System.Linq.Dynamic.Core;
+
+namespace OnlineLibrary.Controller;
 
 [Route("/book")]
 [ApiController]
@@ -21,6 +22,9 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
         string? sortColumn = "Title",
         string? sortOrder = "ASC",
         string? filterQuery = null) {
+        if (pageIndex < 0) {
+            pageIndex = 0;
+        }
         var query = context.Books.AsQueryable();
         if (!string.IsNullOrWhiteSpace(filterQuery)) {
             query = query.Where(
@@ -29,9 +33,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
                 x.Publisher.Contains(filterQuery));
         }
         var recordCount = await query.CountAsync();
-        query = (IQueryable<Book>)query
-            .OrderBy($"{sortColumn} {sortOrder}")
-            .Skip(pageIndex * pageSize)
+        query = (IQueryable<Book>)DynamicQueryableExtensions.Skip(query
+                .OrderBy($"{sortColumn} {sortOrder}"), pageIndex * pageSize)
             .Take(pageSize);
         return new ResultDto<Book[]>() {
             Code = 0,
@@ -106,6 +109,15 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
             };
         }
         context.Books.Remove(book);
+        // 同时删除与之相关联的借阅记录
+        var currentBorrows = await context.CurrentBorrows
+            .Where(x => x.BookId == id)
+            .ToArrayAsync();
+        context.CurrentBorrows.RemoveRange(currentBorrows);
+        var borrowHistories = await context.BorrowHistories
+            .Where(x => x.BookId == id)
+            .ToArrayAsync();
+        context.BorrowHistories.RemoveRange(borrowHistories);
         await context.SaveChangesAsync();
         return new ResultDto<Book>() {
             Code = 0,
@@ -123,6 +135,9 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
         string? sortColumn = "Title",
         string? sortOrder = "ASC",
         string? filterQuery = null) {
+        if (pageIndex < 0) {
+            pageIndex = 0;
+        }
         var query = context.CurrentBorrows
             .Include(x => x.Book)
             .Include(x => x.User)
@@ -134,9 +149,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
                 x.Book.Publisher.Contains(filterQuery));
         }
         var recordCount = await query.CountAsync();
-        query = (IQueryable<CurrentBorrow>)query
-            .OrderBy($"Book.{sortColumn} {sortOrder}")
-            .Skip(pageIndex * pageSize)
+        query = (IQueryable<CurrentBorrow>)DynamicQueryableExtensions.Skip(query
+                .OrderBy($"Book.{sortColumn} {sortOrder}"), pageIndex * pageSize)
             .Take(pageSize);
         var dto = await query.Select(x => new BorrowDto() {
             Id = x.BookId,
@@ -144,7 +158,7 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
             Title = x.Book.Title,
             Author = x.Book.Author,
             Publisher = x.Book.Publisher,
-            BorrowDate = x.BorrowDate,
+            BorrowDate = x.BorrowDate.Date.ToString("yyyy-MM-dd"),
             ReturnDate = null,
         }).ToArrayAsync();
         return new ResultDto<BorrowDto[]>() {
@@ -166,6 +180,9 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
         string? sortColumn = "Title",
         string? sortOrder = "ASC",
         string? filterQuery = null) {
+        if (pageIndex < 0) {
+            pageIndex = 0;
+        }
         var query = context.BorrowHistories
             .Include(x => x.Book)
             .Include(x => x.User)
@@ -177,9 +194,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
                 x.Book.Publisher.Contains(filterQuery));
         }
         var recordCount = await query.CountAsync();
-        query = (IQueryable<BorrowHistory>)query
-            .OrderBy($"Book.{sortColumn} {sortOrder}")
-            .Skip(pageIndex * pageSize)
+        query = (IQueryable<BorrowHistory>)DynamicQueryableExtensions.Skip(query
+                .OrderBy($"Book.{sortColumn} {sortOrder}"), pageIndex * pageSize)
             .Take(pageSize);
         var dto = await query.Select(x => new BorrowDto() {
             Id = x.BookId,
@@ -187,8 +203,9 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
             Title = x.Book.Title,
             Author = x.Book.Author,
             Publisher = x.Book.Publisher,
-            BorrowDate = x.BorrowDate,
-            ReturnDate = x.ReturnDate,
+            BorrowDate = x.BorrowDate.Date.ToString("yyyy-MM-dd"),
+            ReturnDate = x.ReturnDate.Date.ToString("yyyy-MM-dd"),
+            BorrowDuration = ((int)(x.ReturnDate - x.BorrowDate).TotalDays).ToString(),
         }).ToArrayAsync();
         return new ResultDto<BorrowDto[]>() {
             Code = 0,

@@ -1,15 +1,15 @@
 <template>
   <v-container>
-    <v-banner sticky style="font-size: 2rem;">日志管理</v-banner>
+    <v-banner sticky style="font-size: 2rem;">当前借阅</v-banner>
     <v-card rounded="xl" variant="elevated" elevation="5" class="card">
       <v-container>
         <v-row>
           <v-col cols="3">
-            <v-text-field variant="outlined" density="compact" label="检索日志..." v-model="search" clearable></v-text-field>
+            <v-text-field variant="outlined" density="compact" label="检索书籍..." v-model="search" clearable></v-text-field>
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="2">
-            共 {{ totalItems }} 条日志
+            共 {{ totalItems }} 本书籍
           </v-col>
         </v-row>
         <v-row>
@@ -74,40 +74,34 @@ watch(page, () => {
 
 const headers = ref([
   {
-    title: 'ID',
-    align: 'end',
-    sortable: true,
-    key: 'id'
-  },
-  {
-    title: '时间戳',
-    align: 'start',
-    sortable: true,
-    key: 'timestamp',
-  },
-  {
-    title: '级别',
+    title: '书名',
     align: 'center',
     sortable: true,
-    key: 'level',
+    key: 'title'
   },
   {
-    title: '异常',
-    align: 'start',
-    sortable: false,
-    key: 'exception',
+    title: '作者',
+    align: 'center',
+    sortable: true,
+    key: 'author',
   },
   {
-    title: '消息',
-    align: 'start',
-    sortable: false,
-    key: 'renderedMessage',
+    title: '出版社',
+    align: 'center',
+    sortable: true,
+    key: 'publisher',
   },
   {
-    title: 'Properties',
-    align: 'start',
-    sortable: false,
-    key: 'properties',
+    title: '借阅用户',
+    align: 'center',
+    sortable: true,
+    key: 'userName',
+  },
+  {
+    title: '借阅时间',
+    align: 'center',
+    sortable: true,
+    key: 'borrowDate',
   },
 ])
 
@@ -118,7 +112,7 @@ async function request(page, itemsPerPage, sortBy, search) {
     orderBy = sortBy[0].key
     order = sortBy[0].order
   }
-  const url = `/Log?pageIndex=${page - 1}&pageSize=${itemsPerPage}&sortColumn=${orderBy}&sortOrder=${order}&filterQuery=${search}`
+  const url = `/book/currentborrow?pageIndex=${page - 1}&pageSize=${itemsPerPage}&sortColumn=${orderBy}&sortOrder=${order}&filterQuery=${search}`
   try {
     const response = await axiosInstance.get(url)
 

@@ -1,7 +1,7 @@
-﻿namespace OnlineLibrary.Model;
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+namespace OnlineLibrary.Model;
 
 public class BorrowHistory
 {

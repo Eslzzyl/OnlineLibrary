@@ -36,9 +36,22 @@ ASP.NET Core Web API，基于 .NET 8.0
 
 克隆项目后，使用 IDE 打开项目根目录下的 `OnlineLibrary.sln` 解决方案文件。
 
-【数据库准备部分有点麻烦，待补】
+接下来需要初始化（Seed）数据库。
 
-数据库准备完成后，启动解决方案的 http 配置即可。
+1. 移除 `OnlineLibrary/Controller/SeedController.cs` 中 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记（从而跳过执行时的用户身份验证，因为用户数据在数据库里，而数据库还不存在）
+2. 在命令行中切换到 OnlineLibrary 目录（即后端项目的根目录），执行
+
+    ```shell
+    dotnet ef database update
+    ```
+
+    这会自动在 `./Data/` 目录下创建 `OnlineLibrary.db` 数据库。
+3. 按照下面的步骤启动后端项目，然后在 Swagger 页面依次执行 `/Seed/AuthData` 和 `/Seed/BookData` 两个路由，等待数据库导入数据。其中导入书籍数据的时间可能稍长，导入用户数据应当很快完成。导入完毕后，你应该能够在 Response 中看到导入的数据量。
+4. 将 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记添加回去，正常启动项目即可。
+
+数据库准备完成后，启动解决方案的 http 配置即可。看到”OnlineLibrary“的 ASCII Art 后，你可以访问 [http://localhost:5057/swagger/index.html](http://localhost:5057/swagger/index.html) 来打开 Swagger 页面。
+
+`./Data/Logs.db` 文件可以随意删除，删除之后会重新创建。如果你觉得它有点大了，直接删除即可。当然旧的日志也就丢掉了。
 
 > 前端默认向后端的 http 端口发请求，因此测试运行时应该启动 http 配置，而非 https 配置。如果希望修改目标端口，可以到 `Client/src/plugins/util/axiosInstance.ts` 文件中修改。
 
@@ -63,6 +76,8 @@ pnpm dev
 ```
 
 服务器启动后，将自动显示前端的 URL。
+
+如果你通过 `/Seed/AuthData/` 导入了用户数据，那么数据库中默认存在三个用户：`TestUser`、`TestModerator` 和 `TestAdmin`。它们的密码都是 `123456`。三种用户的权限依次提高。由于时间仓促，我没有为 `Moderator` 用户组添加前端功能，因此实际可用的用户只有 `User` 和 `Admin` 两类。
 
 ## 设计文档
 

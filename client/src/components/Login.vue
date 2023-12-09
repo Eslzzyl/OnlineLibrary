@@ -11,7 +11,7 @@
               <v-icon icon="mdi-account"></v-icon>
             </v-col>
             <v-col cols="11">
-              <v-text-field v-model="userID" :rules="notNullRule" label="账号" />
+              <v-text-field v-model="userAccount" :rules="notNullRule" label="账号" />
             </v-col>
           </v-row>
           <v-row>
@@ -46,9 +46,9 @@ import { useRouter } from 'vue-router';
 import { getSkyColor } from '@/plugins/util/color';
 import axiosInstance from '@/plugins/util/axiosInstance';
 
-const  skyColor = getSkyColor();
+const skyColor = getSkyColor();
 
-const userID = ref<string>('')
+const userAccount = ref<string>('')
 const password = ref<string>('')
 
 const snackbar = ref<boolean>(false)
@@ -77,13 +77,12 @@ function onLoginSubmit() {
 
   const url = '/Account/Login'
   axiosInstance.post(url, {
-    account: userID.value,
+    account: userAccount.value,
     password: password.value,
   }).then((response) => {
     const { userName: name, token: token, role: userType, avatar: avatar } = response.data;
     window.localStorage.setItem("name", name);
     window.localStorage.setItem("token", token);
-    window.localStorage.setItem("id", userID.value);
     window.localStorage.setItem("avatar", avatar);
 
     if (userType === 'User') {

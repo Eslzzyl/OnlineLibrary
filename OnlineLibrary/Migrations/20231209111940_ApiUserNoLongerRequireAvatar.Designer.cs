@@ -2,7 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using OnlineLibrary.Model;
 using OnlineLibrary.Model.DatabaseContext;
 
 #nullable disable
@@ -10,9 +12,11 @@ using OnlineLibrary.Model.DatabaseContext;
 namespace OnlineLibrary.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231209111940_ApiUserNoLongerRequireAvatar")]
+    partial class ApiUserNoLongerRequireAvatar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
@@ -295,23 +299,6 @@ namespace OnlineLibrary.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CurrentBorrows");
-                });
-
-            modelBuilder.Entity("OnlineLibrary.Model.Setting", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<uint>("BorrowDurationDays")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<uint>("BorrowLimit")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Settings");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

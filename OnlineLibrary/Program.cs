@@ -1,15 +1,18 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authorization;
 using OnlineLibrary.Constant;
 using OnlineLibrary.Model;
+using OnlineLibrary.Model.DatabaseContext;
 using Serilog;
+using System.Text;
 
+var projectRootPath = Directory.GetCurrentDirectory();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging
@@ -18,7 +21,8 @@ builder.Logging
     .AddDebug();
 builder.Host.UseSerilog((ctx, lc) => {
     lc.ReadFrom.Configuration(ctx.Configuration);
-    lc.WriteTo.SQLite("./Data/Logs.db", tableName: "LogEvents");
+    var logFilePath = Path.Combine(projectRootPath, "./Data/Logs.db");
+    lc.WriteTo.SQLite(logFilePath, tableName: "LogEvents");
 });
 
 // Add services to the container.
@@ -67,7 +71,7 @@ builder.Services.AddAuthentication(options => {
         ValidAudience = builder.Configuration["JWT:Audience"],
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
+            Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
         )
     };
 });
@@ -97,8 +101,12 @@ builder.Services.AddSwaggerGen(options => {
 
 // Database Configuration
 builder.Services.AddDbContext<ApplicationDbContext>(opt => {
-    opt.UseSqlite("Filename=./Data/OnlineLibrary.db");
-    // opt.EnableSensitiveDataLogging();
+    var appDatabaseFilePath = Path.Combine(projectRootPath, "./Data/OnlineLibrary.db");
+    opt.UseSqlite($"Filename={appDatabaseFilePath}");
+});
+builder.Services.AddDbContext<LogsDbContext>(opt => {
+    var logDatabaseFilePath = Path.Combine(projectRootPath, "./Data/Logs.db");
+    opt.UseSqlite($"Filename={logDatabaseFilePath}");
 });
 
 var app = builder.Build();
@@ -128,5 +136,14 @@ app.MapGet("/auth/test/3",
     () => Results.Ok("You are authorized, Admin!"));
 
 app.MapControllers();
+
+Console.WriteLine("   ____        _ _              _      _ _                          ");
+Console.WriteLine("  / __ \\      | (_)            | |    (_) |                         ");
+Console.WriteLine(" | |  | |_ __ | |_ _ __   ___  | |     _| |__  _ __ __ _ _ __ _   _ ");
+Console.WriteLine(" | |  | | '_ \\| | | '_ \\ / _ \\ | |    | | '_ \\| '__/ _` | '__| | | |");
+Console.WriteLine(" | |__| | | | | | | | | |  __/ | |____| | |_) | | | (_| | |  | |_| |");
+Console.WriteLine("  \\____/|_| |_|_|_|_| |_|\\___| |______|_|_.__/|_|  \\__,_|_|   \\__, |");
+Console.WriteLine("                                                               __/ |");
+Console.WriteLine("                                                              |___/ ");
 
 app.Run();

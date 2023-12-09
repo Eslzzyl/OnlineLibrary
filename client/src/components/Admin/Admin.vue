@@ -12,10 +12,16 @@
         <v-list nav>
           <v-list-item prepend-icon="mdi-book-search-outline" title="书籍管理" value="admin_books" rounded="xl"
             @click="changeView(AdminBooks);"></v-list-item>
+          <v-list-item prepend-icon="mdi-book-open-page-variant-outline" title="当前借阅" value="admin_current_borrow" rounded="xl"
+            @click="changeView(AdminCurrentBorrow);"></v-list-item>
+          <v-list-item prepend-icon="mdi-book-open-variant" title="借阅历史" value="admin_borrow_history" rounded="xl"
+            @click="changeView(AdminBorrowHistory);"></v-list-item>
           <v-list-item prepend-icon="mdi-account-cog-outline" title="用户管理" value="admin_users" rounded="xl"
             @click="changeView(AdminUsers);"></v-list-item>
           <v-list-item prepend-icon="mdi-text-box-outline" title="日志管理" value="admin_logs" rounded="xl"
             @click="changeView(AdminLogs);"></v-list-item>
+          <v-list-item prepend-icon="mdi-cog" title="系统设置" value="admin_system_settings" rounded="xl"
+            @click="changeView(AdminSystemSettings);"></v-list-item>
           <v-list-item prepend-icon="mdi-account-tie" title="个人信息" value="admin_account" rounded="xl"
             @click="changeView(AdminAccount);"></v-list-item>
         </v-list>
@@ -66,6 +72,9 @@ import AdminBooks from './AdminBooks.vue';
 import AdminUsers from './AdminUsers.vue';
 import AdminLogs from './AdminLogs.vue';
 import AdminAccount from './AdminAccount.vue';
+import AdminCurrentBorrow from './AdminCurrentBorrow.vue';
+import AdminBorrowHistory from './AdminBorrowHistory.vue';
+import AdminSystemSettings from './AdminSystemSettings.vue';
 
 const router = useRouter()
 
@@ -87,7 +96,7 @@ function logout() {
 
 onMounted(() => {
   adminName.value = window.localStorage.getItem("name") as string;
-  adminAvatar.value = '';
+  adminAvatar.value = window.localStorage.getItem("avatar") as string;
   currentView.value = AdminBooks;
 })
 

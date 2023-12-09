@@ -11,7 +11,7 @@
               <v-icon icon="mdi-account"></v-icon>
             </v-col>
             <v-col cols="11">
-              <v-text-field v-model="userID" :rules="notNullRule" label="账号" />
+              <v-text-field v-model="userAccount" :rules="notNullRule" label="账号" />
             </v-col>
           </v-row>
           <v-row>
@@ -57,7 +57,7 @@ import axiosInstance from '@/plugins/util/axiosInstance';
 
 const skyColor = getSkyColor()
 
-const userID = ref<string>('')
+const userAccount = ref<string>('')
 const password = ref<string>('')
 const passwordConfirmed = ref<string>('')
 
@@ -102,7 +102,7 @@ function onRegisterSubmit() {
 
   const url = '/Account/Register';
   axiosInstance.post(url, {
-    userName: userID.value,
+    userName: userAccount.value,
     password: password.value,
   }).then(() => {
     registerPrompt.value = "注册成功，请登录";

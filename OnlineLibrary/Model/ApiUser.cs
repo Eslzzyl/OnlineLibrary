@@ -1,14 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace OnlineLibrary.Model;
 
-using Microsoft.AspNetCore.Identity;
-
 public class ApiUser : IdentityUser
 {
-    [Required]
     [MaxLength(150)]
-    public string Avatar { get; set; } = null!;
+    public string? Avatar { get; set; }
     
     public ICollection<CurrentBorrow> CurrentBorrows { get; set; } = null!;
 

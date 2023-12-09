@@ -12,7 +12,9 @@ public record BorrowDto
     
     public string Publisher { get; set; } = string.Empty;
     
-    public DateTime BorrowDate { get; set; }
+    public string BorrowDate { get; set; } = string.Empty;
     
-    public DateTime? ReturnDate { get; set; }
+    public string? ReturnDate { get; set; }
+    
+    public string? BorrowDuration { get; set; }
 }

@@ -11,7 +11,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(config => {
   const token = window.localStorage.getItem('token') // 从 localStorage 中获取 token
   if (token != '') {
-    config.headers['token'] = token // 将 token 添加到请求头中
+    config.headers['Authorization'] = `Bearer ${token}` // 将 token 添加到请求头中
   }
   return config
 }, error => {

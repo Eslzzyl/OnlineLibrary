@@ -1,21 +1,26 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OnlineLibrary.Model;
-using OnlineLibrary.Model.Csv;
-using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Constant;
+using OnlineLibrary.Model;
+using OnlineLibrary.Model.Csv;
+using OnlineLibrary.Model.DatabaseContext;
+using System.Globalization;
 
 namespace OnlineLibrary.Controller;
 
 [Authorize(Roles = RoleNames.Admin)]
 [Route("[controller]/[action]")]
 [ApiController]
-public class SeedController(ApplicationDbContext context, IWebHostEnvironment env, ILogger<SeedController> logger,
-        RoleManager<IdentityRole> roleManager, UserManager<ApiUser> userManager)
+public class SeedController(
+    ApplicationDbContext context,
+    IWebHostEnvironment env,
+    ILogger<SeedController> logger,
+    RoleManager<IdentityRole> roleManager,
+    UserManager<ApiUser> userManager)
     : ControllerBase
 {
     [HttpPut]
@@ -30,7 +35,7 @@ public class SeedController(ApplicationDbContext context, IWebHostEnvironment en
             IgnoreBlankLines = true,
             TrimOptions = TrimOptions.Trim,
         };
-        
+
         using var reader = new StreamReader(env.ContentRootPath + "/Data/Books.csv");
         using var csv = new CsvReader(reader, config);
         var existingBooks = await context.Books.ToDictionaryAsync(book => book.Identifier);
@@ -61,40 +66,93 @@ public class SeedController(ApplicationDbContext context, IWebHostEnvironment en
             books = context.Books.Count()
         });
     }
+    
+    [HttpPut]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+    public async Task<IActionResult> SettingsData() {
+        var settings = await context.Settings.FirstOrDefaultAsync();
+        if (settings != null) {
+            return new JsonResult(new {
+                addedSettings = 0
+            });
+        }
+        var setting = new Setting() {
+            BorrowLimit = 20,
+            BorrowDurationDays = 30,
+        };
+        await context.Settings.AddAsync(setting);
+        await context.SaveChangesAsync();
+        return new JsonResult(new {
+            addedSettings = 2
+        });
+    }
 
-    [HttpPost]
+    [HttpPut]
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> AuthData() {
+        var usersCreated = 0;
         var rolesCreated = 0;
         var usersAddedToRoles = 0;
+        
+        // 添加用户
+        var user = await userManager.FindByNameAsync("TestUser");
+        if (user == null) {
+            user = new ApiUser() {
+                UserName = "TestUser",
+                Email = "",
+            };
+            await userManager.CreateAsync(user, "TestUser");
+            await userManager.AddPasswordAsync(user, "123456");
+            usersCreated++;
+        }
+        var moderator = await userManager.FindByNameAsync("TestModerator");
+        if (moderator == null) {
+            moderator = new ApiUser() {
+                UserName = "TestModerator",
+                Email = "",
+            };
+            await userManager.CreateAsync(moderator, "TestModerator");
+            await userManager.AddPasswordAsync(moderator, "123456");
+            usersCreated++;
+        }
+        var admin = await userManager.FindByNameAsync("TestAdmin");
+        if (admin == null) {
+            admin = new ApiUser() {
+                UserName = "TestAdmin",
+                Email = "",
+            };
+            await userManager.CreateAsync(admin, "TestAdmin");
+            await userManager.AddPasswordAsync(admin, "123456");
+            usersCreated++;
+        }
 
         // 添加角色，一共有3种角色
-        
+
         if (!await roleManager.RoleExistsAsync(RoleNames.User)) {
             await roleManager.CreateAsync(
                 new IdentityRole(RoleNames.User));
             rolesCreated++;
         }
-        
+
         if (!await roleManager.RoleExistsAsync(RoleNames.Moderator)) {
             await roleManager.CreateAsync(
                 new IdentityRole(RoleNames.Moderator));
             rolesCreated++;
         }
-        
+
         if (!await roleManager.RoleExistsAsync(RoleNames.Admin)) {
             await roleManager.CreateAsync(
                 new IdentityRole(RoleNames.Admin));
             rolesCreated++;
         }
-        
+
         // 为3种角色对应的测试用户添加用户组，如果用户不存在就什么也不做
         var testUser = await userManager.FindByNameAsync("TestUser");
         if (testUser != null && !await userManager.IsInRoleAsync(testUser, RoleNames.User)) {
             await userManager.AddToRoleAsync(testUser, RoleNames.User);
             usersAddedToRoles++;
         }
-        
+
         var testModerator = await userManager.FindByNameAsync("TestModerator");
         if (testModerator != null) {
             if (!await userManager.IsInRoleAsync(testModerator, RoleNames.Moderator)) {
@@ -105,7 +163,7 @@ public class SeedController(ApplicationDbContext context, IWebHostEnvironment en
             }
             usersAddedToRoles++;
         }
-        
+
         var testAdmin = await userManager.FindByNameAsync("TestAdmin");
         if (testAdmin != null) {
             if (!await userManager.IsInRoleAsync(testAdmin, RoleNames.Admin)) {
@@ -119,10 +177,11 @@ public class SeedController(ApplicationDbContext context, IWebHostEnvironment en
             }
             usersAddedToRoles++;
         }
-        
+
         return new JsonResult(new {
+            UsersCreated = usersCreated,
             RolesCreated = rolesCreated,
-            UsersCreated = usersAddedToRoles,
+            UsersAddedToRoles = usersAddedToRoles,
         });
     }
 }

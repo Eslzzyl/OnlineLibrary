@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace OnlineLibrary.Model;
+namespace OnlineLibrary.Model.DatabaseContext;
 
 public class ApplicationDbContext : IdentityDbContext<ApiUser>
 {
@@ -55,4 +55,6 @@ public class ApplicationDbContext : IdentityDbContext<ApiUser>
     public DbSet<CurrentBorrow> CurrentBorrows => Set<CurrentBorrow>();
 
     public DbSet<BorrowHistory> BorrowHistories => Set<BorrowHistory>();
+    
+    public DbSet<Setting> Settings => Set<Setting>();
 }

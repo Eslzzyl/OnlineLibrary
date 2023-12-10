@@ -1,24 +1,25 @@
 <template>
   <v-container>
-    <v-banner sticky style="font-size: 2rem;">查看书籍</v-banner>
+    <v-banner sticky style="font-size: 2rem;">查看荐购</v-banner>
     <v-card rounded="xl" variant="elevated" elevation="5" class="card">
       <v-container>
         <v-row>
           <v-col cols="3">
-            <v-text-field variant="outlined" density="compact" label="检索书籍..." v-model="search" clearable></v-text-field>
+            <v-text-field variant="outlined" density="compact" label="检索记录..." v-model="search" clearable></v-text-field>
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="2">
-            共 {{ totalItems }} 本书籍
+            共 {{ totalItems }} 条荐购记录
           </v-col>
         </v-row>
         <v-row>
           <v-col>
             <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items-length="totalItems"
               :items="tableData" :loading="loading" :search="search" class="elevation-1" item-value="name"
-              @update:options="loadItems" loading-text="正在加载数据..."  fixed-header height="60vh">
+              @update:options="loadItems" loading-text="正在加载数据..." fixed-header height="60vh">
               <template v-slot:item.moreInfo="{ item }">
-                <v-btn variant="tonal" @click="borrow(item)">借阅</v-btn>
+                <v-btn variant="tonal" @click="moreInfo(item)">详情</v-btn>
+                <v-btn :disabled="item.isProcessed" variant="tonal" @click="process(item)">处理</v-btn>
               </template>
               <template v-slot:bottom>
                 <div class="text-center pt-2">
@@ -29,62 +30,91 @@
           </v-col>
         </v-row>
       </v-container>
-      <v-dialog v-model="borrowConfirmDialog" max-width="40vw">
+      <v-dialog v-model="moreInfoDialog" max-width="70vw">
         <v-card rounded="xl">
           <v-card-title>
-            <span class="text-h5">确认借阅</span>
+            <span class="text-h5">荐购详情</span>
           </v-card-title>
           <v-card-text>
             <v-container>
-              你确定要借阅这本书吗？
+              <v-row>
+                <v-col>
+                  书名：{{ currItem.title }}
+                </v-col>
+                <v-col>
+                  作者：{{ currItem.author }}
+                </v-col>
+                <v-col>
+                  出版社：{{ currItem.publisher }}
+                </v-col>
+                <v-col>
+                  ISBN：{{ currItem.isbn }}
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  用户备注：{{ currItem.userRemark }}
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  推荐用户：{{ currItem.userName }}
+                </v-col>
+                <v-col>
+                  推荐时间：{{ currItem.createTime }}
+                </v-col>
+                <v-col>
+                  是否已处理：{{ currItem.isProcessed }}
+                </v-col>
+                <v-col v-if="currItem.isProcessed">
+                  处理人：{{ currItem.adminName }}
+                </v-col>
+                <v-col v-if="currItem.isProcessed">
+                  处理时间：{{ currItem.updateTime }}
+                </v-col>
+              </v-row>
+              <v-row v-if="currItem.isProcessed">
+                <v-col>
+                  处理备注：{{ currItem.adminRemark }}
+                </v-col>
+              </v-row>
             </v-container>
           </v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue-darken-1" variant="text" @click="borrowConfirmDialog = false;">取消</v-btn>
-            <v-btn color="blue-darken-1" variant="text" @click="borrowConfirmDialog = false; borrowConfirmed()">确定</v-btn>
+            <v-btn color="blue-darken-1" variant="text" @click="moreInfoDialog = false;">关闭</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="borrowLimitDialog" max-width="40vw">
+      <v-dialog v-model="processDialog" max-width="70vw">
         <v-card rounded="xl">
           <v-card-title>
-            <span class="text-h5">已达到最大借阅数量</span>
+            <span class="text-h5">处理荐购请求</span>
           </v-card-title>
           <v-card-text>
             <v-container>
-              你已经达到了系统规定的最大借阅数量。如果你需要借阅更多的书籍，请先归还部分书籍。
+              <v-row>
+                <v-col>
+                  <v-textarea variant="outlined" clearable v-model="remark" label="回复" hint="必填"
+                    persistent-hint :rules="notNullRule"></v-textarea>
+                </v-col>
+              </v-row>
             </v-container>
           </v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue-darken-1" variant="text" @click="borrowLimitDialog = false;">确定</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-dialog v-model="borrowDurationDialog" max-width="40vw">
-        <v-card rounded="xl">
-          <v-card-title>
-            <span class="text-h5">存在超期未还书籍</span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              你有书籍超期未还，无法借阅更多书籍。请先归还超期书籍。
-            </v-container>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue-darken-1" variant="text" @click="borrowDurationDialog = false;">确定</v-btn>
+            <v-btn color="blue-darken-1" variant="text" @click="processDialog = false;">取消</v-btn>
+            <v-btn color="blue-darken-1" variant="text"
+              @click="processDialog = false; processConfirmed()">提交</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
     </v-card>
     <v-fade-transition>
       <v-alert v-if="isErrorHappened" rounded="xl" variant="elevated" elevation="5" class="card">
-          加载似乎出了一点问题。尝试刷新页面？<br>{{ requestError }}
+        加载似乎出了一点问题。尝试刷新页面？<br>{{ requestError }}
       </v-alert>
     </v-fade-transition>
     <v-snackbar v-model="snackbar" timeout="5000" rounded="pill" :color="skyColor">
@@ -92,7 +122,7 @@
     </v-snackbar>
   </v-container>
 </template>
-
+    
 <script setup>
 import axiosInstance from '@/plugins/util/axiosInstance'
 import { ref, watch } from 'vue';
@@ -106,6 +136,8 @@ const tableData = ref([])
 
 const search = ref('')
 
+const currItem = ref(null)
+
 const totalItems = ref(0)
 const itemsPerPage = ref(10)
 const pageCount = ref(0)
@@ -116,47 +148,60 @@ const requestError = ref(null)
 const isErrorHappened = ref(false)
 const loading = ref(true)
 
-const borrowConfirmDialog = ref(false)
-const borrowLimitDialog = ref(false)
-const borrowDurationDialog = ref(false)
+const processDialog = ref(false)
+const moreInfoDialog = ref(false)
 
-const currItem = ref(null)
+const submitButtonDisabled = ref(false)
 
 const snackbar = ref(false)
 const prompt = ref('')
 
-function borrow(item) {
-  console.log(item)
+const remark = ref('')
+
+const notNullRule = [
+  (value) => {
+    if (value !== '') {
+      submitButtonDisabled.value = false;
+      return true;
+    } else {
+      submitButtonDisabled.value = true;
+      return '请填入信息';
+    }
+  },
+]
+
+function moreInfo(item) {
   currItem.value = item
-  borrowConfirmDialog.value = true
+  moreInfoDialog.value = true
 }
 
-function borrowConfirmed() {
-  const url = `/user/borrow?bookId=${currItem.value.id}`;
-  axiosInstance.post(url).then((response) => {
+function process(item) {
+  currItem.value = item
+  processDialog.value = true
+}
+
+function processConfirmed() {
+  const url = `/admin/recommend?recommendId=${currItem.value.id}&adminRemark=${remark.value}`;
+  console.log(url);
+  axiosInstance.put(url)
+  .then((response) => {
     if (response.data.code === 0) {
-      console.log("借阅成功")
-      prompt.value = "借阅成功";
+      console.log("处理成功")
+      prompt.value = "处理成功";
       snackbar.value = true;
       loadItems({
         page: 1,
         itemsPerPage: itemsPerPage.value,
         sortBy: sortBy.value
       })
-    } else if (response.data.code === 2) {
-      console.log("借阅失败：已达到最大借阅数量")
-      borrowLimitDialog.value = true
-    } else if(response.data.code === 3) {
-      console.log("借阅失败：存在超期未还书籍")
-      borrowDurationDialog.value = true
     } else {
-      console.log("借阅失败");
-      prompt.value = "借阅失败：" + response.data.message;
+      console.log("处理失败");
+      prompt.value = "处理失败：" + response.data.message;
       snackbar.value = true;
     }
   }).catch((error) => {
     console.log(error)
-    prompt.value = "借阅失败：" + error;
+    prompt.value = "处理失败：" + error;
     snackbar.value = true;
   })
 }
@@ -189,27 +234,27 @@ const headers = ref([
     key: 'publisher',
   },
   {
-    title: '出版时间',
+    title: 'ISBN',
     align: 'center',
     sortable: true,
-    key: 'publishedDate',
+    key: 'isbn',
   },
   {
-    title: '索书号',
+    title: '提交用户',
     align: 'center',
     sortable: true,
-    key: 'identifier',
+    key: 'userName',
   },
   {
-    title: '在馆数量',
+    title: '是否已处理',
     align: 'center',
-    sortable: false,
-    key: 'inventory',
+    sortable: true,
+    key: 'isProcessed',
   },
   {
-    title: '操作',
+    title: '更多信息',
     align: 'center',
-    sortable: false,
+    sortable: true,
     key: 'moreInfo',
   },
 ])
@@ -221,7 +266,7 @@ async function request(page, itemsPerPage, sortBy, search) {
     orderBy = sortBy[0].key
     order = sortBy[0].order
   }
-  const url = `/book?pageIndex=${page-1}&pageSize=${itemsPerPage}&sortColumn=${orderBy}&sortOrder=${order}&filterQuery=${search}`
+  const url = `/recommend?pageIndex=${page - 1}&pageSize=${itemsPerPage}&sortColumn=${orderBy}&sortOrder=${order}&filterQuery=${search}`
   try {
     const response = await axiosInstance.get(url)
 
@@ -253,3 +298,4 @@ async function loadItems({ page, itemsPerPage, sortBy }) {
 }
 
 </script>
+    

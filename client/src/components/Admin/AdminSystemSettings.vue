@@ -62,10 +62,10 @@ const prompt = ref('')
 
 const isNumberRules = [
   (value: string) => {
-    if (/^\d+$/.test(borrowLimit.value)) {
+    if (/^(0|[1-9]\d*)$/.test(value)) {
       return true;
     } else {
-      return '请输入数字！';
+      return '请输入正整数！';
     }
   },
 ]

@@ -57,4 +57,6 @@ public class ApplicationDbContext : IdentityDbContext<ApiUser>
     public DbSet<BorrowHistory> BorrowHistories => Set<BorrowHistory>();
     
     public DbSet<Setting> Settings => Set<Setting>();
+    
+    public DbSet<Recommend> Recommends => Set<Recommend>();
 }

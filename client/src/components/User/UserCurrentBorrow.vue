@@ -151,6 +151,12 @@ const headers = ref([
     key: 'borrowDate',
   },
   {
+    title: '借阅时长（天）',
+    align: 'center',
+    sortable: true,
+    key: 'borrowDuration',
+  },
+  {
     title: '操作',
     align: 'center',
     sortable: false,

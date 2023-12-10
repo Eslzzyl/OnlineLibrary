@@ -107,7 +107,7 @@ const headers = ref([
     title: '借阅时长（天）',
     align: 'center',
     sortable: true,
-    key: 'borrowTime',
+    key: 'borrowDuration',
   },
 ])
 

@@ -7,6 +7,7 @@ using OnlineLibrary.Dto;
 using OnlineLibrary.Model;
 using OnlineLibrary.Model.DatabaseContext;
 using System.Linq.Dynamic.Core;
+using System.Security.Claims;
 
 namespace OnlineLibrary.Controller;
 
@@ -16,6 +17,24 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
         IHttpContextAccessor httpContextAccessor, UserManager<ApiUser> userManager)
     : ControllerBase
 {
+    private string GetAdminId() {
+        // Get user id from token
+        string userId;
+        if (httpContextAccessor.HttpContext != null) {
+            var claim = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim != null) {
+                userId = claim.Value;
+            }
+            else {
+                throw new Exception();
+            }
+        }
+        else {
+            throw new Exception();
+        }
+        return userId;
+    }
+    
     [Authorize(Roles = RoleNames.Admin)]
     [HttpGet("users")]
     [ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
@@ -89,6 +108,8 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
         context.BorrowHistories.RemoveRange(histories);
         var current = await context.CurrentBorrows.Where(x => x.UserId == userId).ToListAsync();
         context.CurrentBorrows.RemoveRange(current);
+        var recommends = await context.Recommends.Where(x => x.UserId == userId).ToListAsync();
+        context.Recommends.RemoveRange(recommends);
         
         await context.SaveChangesAsync();
         
@@ -131,6 +152,30 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
             Code = 0,
             Message = "OK",
             Data = settings,
+        };
+    }
+    
+    [Authorize(Roles = RoleNames.Admin)]
+    [HttpPut("recommend")]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+    public async Task<ResultDto<Recommend>> UpdateRecommend(int recommendId, string adminRemark) {
+        var recommend = await context.Recommends.FindAsync(recommendId);
+        if (recommend == null) {
+            return new ResultDto<Recommend>() {
+                Code = 1,
+                Message = "Recommend not found.",
+                Data = null,
+            };
+        }
+        recommend.IsProcessed = true;
+        recommend.AdminId = GetAdminId();
+        recommend.AdminRemark = adminRemark;
+        recommend.UpdateTime = DateTime.Now;
+        await context.SaveChangesAsync();
+        return new ResultDto<Recommend>() {
+            Code = 0,
+            Message = "OK",
+            Data = recommend,
         };
     }
 }

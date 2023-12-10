@@ -11,6 +11,7 @@
           <v-tabs v-model="currComponent" :color="skyColor" align-tabs="center">
             <v-tab :value="Login">登录</v-tab>
             <v-tab :value="Register">注册</v-tab>
+            <v-tab :value="Theme">主题</v-tab>
           </v-tabs>
           <component :is="currComponent"></component>
         </v-row>
@@ -27,6 +28,8 @@ import GLOBE from "vanta/dist/vanta.globe.min"
 
 import Login from './Login.vue';
 import Register from './Register.vue';
+import Theme from './Theme.vue';
+
 import {getSkyColor} from "@/plugins/util/color";
 
 const skyColor = getSkyColor();

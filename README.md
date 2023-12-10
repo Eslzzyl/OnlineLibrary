@@ -45,8 +45,8 @@ ASP.NET Core Web API，基于 .NET 8.0
     dotnet ef database update
     ```
 
-    这会自动在 `./Data/` 目录下创建 `OnlineLibrary.db` 数据库。
-3. 按照下面的步骤启动后端项目，然后在 Swagger 页面依次执行 `/Seed/AuthData` 和 `/Seed/BookData` 两个路由，等待数据库导入数据。其中导入书籍数据的时间可能稍长，导入用户数据应当很快完成。导入完毕后，你应该能够在 Response 中看到导入的数据量。
+    这会自动在 `./Data/` 目录下创建 `OnlineLibrary.db` 数据库并按顺序执行已有的一系列 Migrations。
+3. 按照下面的步骤启动后端项目，然后在 Swagger 页面依次执行 `/Seed/AuthData`、`/Seed/BookData` 和 `/Seed/SettingsDate` 3个路由，等待数据库导入数据。其中导入书籍数据的时间可能稍长，导入用户数据和导入设置数据应当很快完成。导入完毕后，你应该能够在 Response 中看到导入的数据量。
 4. 将 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记添加回去，正常启动项目即可。
 
 数据库准备完成后，启动解决方案的 http 配置即可。看到”OnlineLibrary“的 ASCII Art 后，你可以访问 [http://localhost:5057/swagger/index.html](http://localhost:5057/swagger/index.html) 来打开 Swagger 页面。

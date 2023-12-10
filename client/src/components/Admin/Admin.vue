@@ -1,10 +1,10 @@
 <template>
-  <v-card theme="light">
+  <v-card>
     <v-layout>
       <v-navigation-drawer rounded="xl" elevation="5">
         <!--如果要加背景图片，就用：-->
         <!-- <v-navigation-drawer image="https://cdn.vuetifyjs.com/images/backgrounds/bg-2.jpg" permanent theme="light"> -->
-        <v-sheet color="indigo-lighten-5" class="pa-4" rounded="xl">
+        <v-sheet color="profile" class="pa-4" rounded="xl">
           <v-avatar :image="adminAvatar" size="64" class="mb-4"></v-avatar>
           <div>{{ adminName }}</div>
         </v-sheet>
@@ -16,6 +16,8 @@
             @click="changeView(AdminCurrentBorrow);"></v-list-item>
           <v-list-item prepend-icon="mdi-book-open-variant" title="借阅历史" value="admin_borrow_history" rounded="xl"
             @click="changeView(AdminBorrowHistory);"></v-list-item>
+          <v-list-item prepend-icon="mdi-account-edit-outline" title="荐购" value="admin_recommend" rounded="xl"
+            @click="changeView(AdminRecommend);"></v-list-item>
           <v-list-item prepend-icon="mdi-account-cog-outline" title="用户管理" value="admin_users" rounded="xl"
             @click="changeView(AdminUsers);"></v-list-item>
           <v-list-item prepend-icon="mdi-text-box-outline" title="日志管理" value="admin_logs" rounded="xl"
@@ -30,7 +32,8 @@
           <div class="pa-2" style="width: 70%; margin: 0 auto;">
             <v-dialog width="500">
               <template v-slot:activator="{ props }">
-                <v-btn block v-bind="props" variant="tonal">登出</v-btn>
+                <v-btn variant="tonal" @click="toggleTheme" class="mr-1">更改主题</v-btn>
+                <v-btn v-bind="props" variant="tonal">登出</v-btn>
               </template>
 
               <template v-slot:default="{ isActive }">
@@ -55,7 +58,7 @@
         <v-container>
           <v-slide-x-transition>
             <component :is="currentView"
-              @change-avatar="(avatar: string) => { adminAvatar = avatar; console.log(adminAvatar) }"></component>
+              @change-avatar="(avatar: string) => { adminAvatar = avatar; }"></component>
           </v-slide-x-transition>
         </v-container>
       </v-main>
@@ -75,6 +78,15 @@ import AdminAccount from './AdminAccount.vue';
 import AdminCurrentBorrow from './AdminCurrentBorrow.vue';
 import AdminBorrowHistory from './AdminBorrowHistory.vue';
 import AdminSystemSettings from './AdminSystemSettings.vue';
+import AdminRecommend from './AdminRecommend.vue';
+
+import { useTheme } from 'vuetify'
+
+const theme = useTheme()
+
+function toggleTheme () {
+  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
+}
 
 const router = useRouter()
 

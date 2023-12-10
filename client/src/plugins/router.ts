@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import Greeting from '@/components/Greeting.vue';
+import Greeting from '@/components/Greeting/Greeting.vue';
 import User from '@/components/User/User.vue';
 import Admin from '@/components/Admin/Admin.vue';
 

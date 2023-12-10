@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OnlineLibrary.Dto;
 using OnlineLibrary.Model;
 using OnlineLibrary.Model.DatabaseContext;
+using System.Globalization;
 using System.Linq.Dynamic.Core;
 using System.Security.Claims;
 
@@ -65,6 +66,7 @@ public class UserController(
             Author = x.Book.Author,
             Publisher = x.Book.Publisher,
             BorrowDate = x.BorrowDate.Date.ToString("yyyy-MM-dd"),
+            BorrowDuration = (DateTime.Now - x.BorrowDate).TotalDays.ToString("F2", CultureInfo.InvariantCulture),
             ReturnDate = null,
         }).ToArrayAsync();
         return new ResultDto<BorrowDto[]>() {
@@ -108,7 +110,7 @@ public class UserController(
             Publisher = x.Book.Publisher,
             BorrowDate = x.BorrowDate.Date.ToString("yyyy-MM-dd"),
             ReturnDate = x.ReturnDate.Date.ToString("yyyy-MM-dd"),
-            BorrowDuration = ((int)(x.ReturnDate - x.BorrowDate).TotalDays).ToString(),
+            BorrowDuration = ((int)(x.ReturnDate - x.BorrowDate).TotalDays).ToString("F2", CultureInfo.InvariantCulture),
         }).ToArrayAsync();
         return new ResultDto<BorrowDto[]>() {
             Code = 0,
@@ -156,7 +158,15 @@ public class UserController(
         }
         
         // 检查用户当前借书表中是否有超期
-        // var ifExceed = cb.
+        var cbList = await cb.ToListAsync();
+        var ifExceed = cbList.Any(x => (DateTime.Now - x.BorrowDate).TotalDays > setting.BorrowDurationDays);
+        if (setting.BorrowDurationDays != 0 && ifExceed) {
+            return new ResultDto<Book>() {
+                Code = 3,
+                Message = $"You have some book(s) exceeded the borrow duration of {setting.BorrowDurationDays} days. Before borrowing new book(s), please return the exceeded book(s).",
+                Data = null,
+            };
+        }
         
         var cbWithSameUserAndBook = await cb
             .Where(x => x.BookId == bookId)
@@ -170,6 +180,7 @@ public class UserController(
             };
         }
 
+        // 检查库存
         if (book.Inventory <= 0) {
             return new ResultDto<Book>() {
                 Code = 1,
@@ -177,6 +188,8 @@ public class UserController(
                 Data = null,
             };
         }
+        
+        // 所有检查均通过后，创建借阅记录
         var currentBorrowRecord = new CurrentBorrow() {
             UserId = userId,
             BookId = bookId,
@@ -245,4 +258,42 @@ public class UserController(
             Data = null,
         };
     }
+    
+    [Authorize]
+    [HttpPost("recommend")]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+    public async Task<ResultDto<Recommend>> RecommendBook(RecommendUserRequestDto requestDto) {
+        var userId = GetUserId();
+        var user = await context.Users.FindAsync(userId);
+        if (user == null) {
+            return new ResultDto<Recommend>() {
+                Code = 1,
+                Message = "User Not Found",
+                Data = null,
+            };
+        }
+        var recommend = new Recommend() {
+            UserId = userId,
+            Title = requestDto.Title,
+            Author = requestDto.Author ?? string.Empty,
+            Publisher = requestDto.Publisher ?? string.Empty,
+            Isbn = requestDto.Isbn ?? string.Empty,
+            UserRemark = requestDto.Remark ?? string.Empty,
+            IsProcessed = false,
+            CreateTime = DateTime.Now,
+            UpdateTime = DateTime.MinValue,
+        };
+        context.Recommends.Add(recommend);
+        await context.SaveChangesAsync();
+        return new ResultDto<Recommend>() {
+            Code = 0,
+            Message = "OK",
+            Data = null,
+        };
+    }
+    
+    [Authorize]
+    [HttpGet("statistics")]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+    
 }

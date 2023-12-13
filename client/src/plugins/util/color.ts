@@ -150,13 +150,25 @@ export function getSunGlareColor(): string {
   return currColor
 }
 
-export function getRandomColorList(count: number): string[] {
-  const list = [
-    "#FFCDD2", "#F8BBD0", "#E1BEE7", "#D1C4E9", "#C5CAE9", "#BBDEFB",
-    "#B3E5FC", "#B2EBF2", "#B2DFDB", "#C8E6C9", "#DCEDC8", "#F0F4C3",
-    "#FFF9C4", "#FFECB3", "#FFE0B2", "#FFCCBC", "#D7CCC8", "#CFD8DC",
-    "#BDBDBD"
-  ]
+export function getRandomColorList(count: number, theme: "light" | "dark" = "light"): string[] {
+  let list: string[];
+  if (theme == "light") {
+    list = [
+      "#FFCDD2", "#F8BBD0", "#E1BEE7", "#D1C4E9", "#C5CAE9", "#BBDEFB",
+      "#B3E5FC", "#B2EBF2", "#B2DFDB", "#C8E6C9", "#DCEDC8", "#F0F4C3",
+      "#FFF9C4", "#FFECB3", "#FFE0B2", "#FFCCBC", "#D7CCC8", "#CFD8DC",
+      "#E0E0E0"
+    ];
+  } else if (theme == "dark") {
+    list = [
+      "#B71C1C", "#880E4F", "#4A148C", "#311B92", "#1A237E", "#0D47A1",
+      "#01579B", "#006064", "#004D40", "#1B5E20", "#33691E", "#827717",
+      "#F57F17", "#FF6F00", "#E65100", "#BF360C", "#3E2723", "#263238",
+      "#424242"
+    ];
+  } else {
+    list = ["#000000"];
+  }
 
   if (count <= 0) {
     return []; // 返回空数组，因为数量无效
@@ -165,8 +177,8 @@ export function getRandomColorList(count: number): string[] {
   const result: string[] = [];
 
   for (let i = 0; i < count; i++) {
-    // const randomIndex = Math.floor(Math.random() * list.length);
-    const randomIndex = i % list.length;
+    const randomIndex = Math.floor(Math.random() * list.length);
+    // const randomIndex = i % list.length;
     result.push(list[randomIndex]);
   }
 

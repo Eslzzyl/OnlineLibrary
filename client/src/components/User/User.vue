@@ -4,7 +4,7 @@
       <v-navigation-drawer rounded="xl" elevation="5">
         <!--如果要加背景图片，就用：-->
         <!-- <v-navigation-drawer image="https://cdn.vuetifyjs.com/images/backgrounds/bg-2.jpg" permanent theme="light"> -->
-        <v-sheet color="indigo-lighten-5" class="pa-4" rounded="xl">
+        <v-sheet color="profile" class="pa-4" rounded="xl">
           <v-avatar :image="userAvatar" size="64" class="mb-4"></v-avatar>
           <div>{{ userName }}</div>
         </v-sheet>

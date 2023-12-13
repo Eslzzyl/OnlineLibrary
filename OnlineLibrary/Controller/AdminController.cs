@@ -71,6 +71,7 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
             };
             userDtos.Add(userDto);
         }
+        logger.LogInformation("Admin {AdminId} is querying users.", GetAdminId());
         return new ResultDto<UserResponseDto[]>() {
             Code = 0,
             Message = "OK",
@@ -113,6 +114,11 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
         
         await context.SaveChangesAsync();
         
+        logger.LogInformation("Admin {AdminId} removed user {UserId}.", GetAdminId(), userId);
+        if (histories.Count > 0 || current.Count > 0 || recommends.Count > 0) {
+            logger.LogWarning("Because user {UserId} is removed, the following records was removed too: {Histories}, {Current}, {Recommends}", userId, histories, current, recommends);
+        }
+        
         return new ResultDto<ApiUser>() {
             Code = 0,
             Message = "Successfully removed user.",
@@ -125,6 +131,15 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<ResultDto<Setting>> GetSettings() {
         var settings = await context.Settings.FirstOrDefaultAsync();
+        if (settings == null) {
+            return new ResultDto<Setting> {
+                Code = 1,
+                Message = "Settings not found.",
+                Data = null,
+            };
+        }
+        
+        logger.LogInformation("Admin {AdminId} is querying settings.", GetAdminId());
         return new ResultDto<Setting>() {
             Code = 0,
             Message = "OK",
@@ -148,6 +163,8 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
             settings.BorrowDurationDays = borrowDurationDays;
         }
         await context.SaveChangesAsync();
+        
+        logger.LogInformation("Admin {AdminId} updated settings.", GetAdminId());
         return new ResultDto<Setting>() {
             Code = 0,
             Message = "OK",
@@ -167,11 +184,15 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
                 Data = null,
             };
         }
+        
         recommend.IsProcessed = true;
         recommend.AdminId = GetAdminId();
         recommend.AdminRemark = adminRemark;
         recommend.UpdateTime = DateTime.Now;
         await context.SaveChangesAsync();
+        
+        logger.LogInformation("Admin {AdminId} updated recommend {RecommendId}.", GetAdminId(), recommendId);
+        
         return new ResultDto<Recommend>() {
             Code = 0,
             Message = "OK",

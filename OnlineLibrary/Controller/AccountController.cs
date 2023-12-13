@@ -56,12 +56,15 @@ public class AccountController(
                     return StatusCode(201, $"User '{newUser.UserName}' has been created.");
                 }
                 else {
-                    throw new Exception(
-                        $"Error: {string.Join(" ",
-                            result.Errors.Select(error => error.Description))}");
+                    var description = result.Errors.Select(error => error.Description).FirstOrDefault();
+                    logger.LogWarning("User creation failed: {description}", string.Join(" ", description));
+                    throw new Exception($"Error: {string.Join(" ", description)}");
                 }
             }
             else {
+                logger.LogWarning("User creation failed: {description}", string.Join(" ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)));
                 var details = new ValidationProblemDetails(ModelState) {
                     Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                     Status = StatusCodes.Status400BadRequest
@@ -70,6 +73,7 @@ public class AccountController(
             }
         }
         catch (Exception e) {
+            logger.LogWarning("User creation failed: {description}", e.Message);
             var exceptionDetails = new ProblemDetails {
                 Detail = e.Message,
                 Status = StatusCodes.Status500InternalServerError,
@@ -88,10 +92,10 @@ public class AccountController(
                 var user = await userManager.FindByNameAsync(input.Account) ??
                     await userManager.FindByEmailAsync(input.Account);
                 if (user == null) {
-                    throw new Exception("User account not found.");
+                    return StatusCode(StatusCodes.Status404NotFound, "User not found.");
                 }
                 else if (!await userManager.CheckPasswordAsync(user, input.Password)) {
-                    throw new Exception("Invalid password.");
+                    return StatusCode(StatusCodes.Status401Unauthorized, "Incorrect password.");
                 }
                 else {
                     var signingCredentials = new SigningCredentials(
@@ -127,6 +131,8 @@ public class AccountController(
                         role = "User";
                     }
 
+                    logger.LogInformation("User {userName} ({email}) has logged in.", user.UserName, user.Email);
+                    
                     return StatusCode(StatusCodes.Status200OK, new LoginResponseDto() {
                         Token = jwtString,
                         UserName = user.UserName,
@@ -136,6 +142,9 @@ public class AccountController(
                 }
             }
             else {
+                logger.LogWarning("User login failed: {description}", string.Join(" ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)));
                 var details = new ValidationProblemDetails(ModelState) {
                     Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                     Status = StatusCodes.Status400BadRequest
@@ -144,6 +153,7 @@ public class AccountController(
             }
         }
         catch (Exception e) {
+            logger.LogWarning("User login failed: {description}", e.Message);
             var exceptionDetails = new ProblemDetails {
                 Detail = e.Message,
                 Status = StatusCodes.Status401Unauthorized,
@@ -161,7 +171,7 @@ public class AccountController(
             if (ModelState.IsValid) {
                 var user = await userManager.FindByIdAsync(GetUserId());
                 if (user == null) {
-                    return StatusCode(StatusCodes.Status404NotFound);
+                    return StatusCode(StatusCodes.Status404NotFound, "User not found.");
                 }
                 else {
                     user.Email = input.Email;
@@ -172,10 +182,14 @@ public class AccountController(
                         await userManager.AddPasswordAsync(user, input.Password);
                     }
                     await userManager.UpdateAsync(user);
+                    logger.LogInformation("User {userName} ({email}) has updated info.", user.UserName, user.Email);
                     return StatusCode(StatusCodes.Status200OK, "User info updated.");
                 }
             }
             else {
+                logger.LogWarning("User info update failed: {description}", string.Join(" ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)));
                 var details = new ValidationProblemDetails(ModelState) {
                     Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                     Status = StatusCodes.Status400BadRequest
@@ -184,6 +198,7 @@ public class AccountController(
             }
         }
         catch (Exception e) {
+            logger.LogWarning("User info update failed: {description}", e.Message);
             var exceptionDetails = new ProblemDetails {
                 Detail = e.Message,
                 Status = StatusCodes.Status500InternalServerError,
@@ -206,6 +221,7 @@ public class AccountController(
             };
         }
         else {
+            logger.LogInformation("User {userName} ({email}) has got info.", user.UserName, user.Email);
             return new ResultDto<GetInfoResponseDto>() {
                 Code = 0,
                 Message = "OK",

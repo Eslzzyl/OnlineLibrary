@@ -54,6 +54,10 @@ public class RecommendController(ApplicationDbContext context,
             AdminName = context.Users.Where(u => u.Id == x.AdminId).Select(u => u.UserName).FirstOrDefault(),
         }).ToArrayAsync();
         
+        logger.LogInformation(
+            "FilterQuery: {FilterQuery}, pageIndex={PageIndex}, pageSize={PageSize}, sortColumn={SortColumn}, sortIndex={SortIndex}.",
+            filterQuery, pageIndex, pageSize, sortColumn, sortOrder);
+        logger.LogInformation("Got {Count} recommends", await query.CountAsync());
         return new ResultDto<RecommendResponseDto[]>() {
             Code = 0,
             Message = "OK",

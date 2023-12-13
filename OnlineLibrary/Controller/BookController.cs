@@ -36,6 +36,11 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
         query = (IQueryable<Book>)DynamicQueryableExtensions.Skip(query
                 .OrderBy($"{sortColumn} {sortOrder}"), pageIndex * pageSize)
             .Take(pageSize);
+        
+        logger.LogInformation(
+            "FilterQuery: {FilterQuery}, pageIndex={PageIndex}, pageSize={PageSize}, sortColumn={SortColumn}, sortIndex={SortIndex}.",
+            filterQuery, pageIndex, pageSize, sortColumn, sortOrder);
+        logger.LogInformation("Got {Count} books", await query.CountAsync());
         return new ResultDto<Book[]>() {
             Code = 0,
             Message = "OK",
@@ -62,6 +67,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
         };
         context.Books.Add(book);
         await context.SaveChangesAsync();
+
+        logger.LogInformation("Added book {Book}", book);
         return new ResultDto<Book>() {
             Code = 0,
             Message = "OK",
@@ -89,6 +96,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
         book.InboundDate = bookDto.InboundDate;
         book.Inventory = bookDto.Inventory;
         await context.SaveChangesAsync();
+        
+        logger.LogInformation("Updated book {Book}", book);
         return new ResultDto<Book>() {
             Code = 0,
             Message = "OK",
@@ -119,6 +128,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
             .ToArrayAsync();
         context.BorrowHistories.RemoveRange(borrowHistories);
         await context.SaveChangesAsync();
+        
+        logger.LogInformation("Deleted book {Book}", book);
         return new ResultDto<Book>() {
             Code = 0,
             Message = "OK",
@@ -161,6 +172,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
             BorrowDate = x.BorrowDate.Date.ToString("yyyy-MM-dd"),
             ReturnDate = null,
         }).ToArrayAsync();
+        
+        logger.LogInformation("Got {Count} current borrows", await query.CountAsync());
         return new ResultDto<BorrowDto[]>() {
             Code = 0,
             Message = "OK",
@@ -207,6 +220,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
             ReturnDate = x.ReturnDate.Date.ToString("yyyy-MM-dd"),
             BorrowDuration = ((int)(x.ReturnDate - x.BorrowDate).TotalDays).ToString(),
         }).ToArrayAsync();
+        
+        logger.LogInformation("Got {Count} borrow histories", await query.CountAsync());
         return new ResultDto<BorrowDto[]>() {
             Code = 0,
             Message = "OK",

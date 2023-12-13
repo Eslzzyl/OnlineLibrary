@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OnlineLibrary.Constant;
 using OnlineLibrary.Dto;
 using OnlineLibrary.Model;
 using OnlineLibrary.Model.DatabaseContext;
@@ -295,5 +296,68 @@ public class UserController(
     [Authorize]
     [HttpGet("statistics")]
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-    
+    public async Task<ResultDto<UserStatisticsDto>> GetUserStatistics() {
+        var userId = GetUserId();
+        var user = await context.Users.FindAsync(userId);
+        if (user == null) {
+            return new ResultDto<UserStatisticsDto>() {
+                Code = 1,
+                Message = "User Not Found",
+                Data = null,
+            };
+        }
+        var currentBorrowedBooks = await context.CurrentBorrows
+            .Where(x => x.UserId == userId)
+            .CountAsync();
+        // 将当前用户的借阅历史记录全部取到内存中，然后进行统计。由于一个用户的借阅记录数量有限，内存的消耗应当是可以接受的。
+        var borrowHistories = context.BorrowHistories
+            .Where(x => x.UserId == userId)
+            .Include(x => x.Book)
+            .AsEnumerable();
+        var enumerable = borrowHistories as BorrowHistory[] ?? borrowHistories.ToArray();
+        var totalBorrowedBooks = enumerable.Count();
+        var lastMonthBorrowedBooks = enumerable.Count(x => x.BorrowDate > DateTime.Now.AddMonths(-1));
+
+        var past12Months = Enumerable.Range(0, 12)
+            .Select(i => DateTime.Now.AddMonths(-i).ToString("yyyy-MM"))
+            .Reverse();
+        var monthlyBorrowedBooks = new Dictionary<string, int>();
+        foreach (var month in past12Months) {
+            var count = enumerable.Count(x => x.BorrowDate.ToString("yyyy-MM") == month);
+            monthlyBorrowedBooks.Add(month, count);
+        }
+        
+        var zhongTuClassification = new ZhongTuClassification();
+        var borrowedBooksByClassification = enumerable
+            .GroupBy(x => x.Book.Identifier[..1])
+            .Select(x => new {
+                Classification = zhongTuClassification.GetClassificationName(x.Key),
+                Count = x.Count(),
+            })
+            .OrderBy(x => x.Classification)
+            .ToDictionary(g => g.Classification, g => g.Count);
+        var averageBorrowDuration = enumerable
+            .Average(x => (x.ReturnDate - x.BorrowDate).TotalDays);
+        
+        logger.LogInformation("User {UserId} statistics: {0}", userId, new {
+            totalBorrowedBooks,
+            lastMonthBorrowedBooks,
+            monthlyBorrowedBooks,
+            borrowedBooksByClassification,
+            averageBorrowDuration,
+        });
+        
+        return new ResultDto<UserStatisticsDto>() {
+            Code = 0,
+            Message = "OK",
+            Data = new UserStatisticsDto() {
+                TotalHistoryBorrowedBooks = totalBorrowedBooks,
+                TotalCurrentBorrowedBooks = currentBorrowedBooks,
+                LastMonthBorrowedBooks = lastMonthBorrowedBooks,
+                MonthlyBorrowedBooks = monthlyBorrowedBooks,
+                BorrowedBooksByClassification = borrowedBooksByClassification,
+                AverageBorrowDuration = averageBorrowDuration.ToString("F2"),
+            },
+        };
+    }
 }

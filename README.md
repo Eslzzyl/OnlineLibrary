@@ -34,7 +34,13 @@ ASP.NET Core Web API，基于 .NET 8.0
 
 本项目的大部分代码是在 Rider 上编写的。
 
-克隆项目后，使用 IDE 打开项目根目录下的 `OnlineLibrary.sln` 解决方案文件。
+克隆项目后，使用 NuGet 恢复依赖：
+
+```shell
+nuget restore .\OnlineLibrary.sln
+```
+
+然后使用 IDE 打开项目根目录下的 `OnlineLibrary.sln` 解决方案文件。
 
 接下来需要初始化（Seed）数据库。
 

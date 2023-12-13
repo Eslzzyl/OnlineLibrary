@@ -9,7 +9,11 @@
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="2">
-            共 {{ totalItems }} 条荐购记录
+            <v-card rounded="xl" variant="tonal">
+              <div class="ml-2 mr-2 mt-2 mb-2 d-flex justify-center">
+                共 {{ totalItems }} 条荐购记录
+              </div>
+            </v-card>
           </v-col>
         </v-row>
         <v-row>

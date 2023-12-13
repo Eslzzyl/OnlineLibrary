@@ -9,7 +9,11 @@
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="2">
-            <span>共 {{ totalItems }} 本书籍</span>
+            <v-card rounded="xl" variant="tonal">
+              <div class="ml-2 mr-2 mt-2 mb-2 d-flex justify-center">
+                共 {{ totalItems }} 本书籍
+              </div>
+            </v-card>
           </v-col>
           <v-col cols="1">
             <v-btn variant="tonal" @click="add(item)">新增</v-btn>

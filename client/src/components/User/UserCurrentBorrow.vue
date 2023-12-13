@@ -9,14 +9,18 @@
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="2">
-            共 {{ totalItems }} 本书籍
+            <v-card rounded="xl" variant="tonal">
+              <div class="ml-2 mr-2 mt-2 mb-2 d-flex justify-center">
+                共 {{ totalItems }} 本书籍
+              </div>
+            </v-card>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
             <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items-length="totalItems"
               :items="tableData" :loading="loading" :search="search" class="elevation-1" item-value="name"
-              @update:options="loadItems" loading-text="正在加载数据..."  fixed-header height="60vh">
+              @update:options="loadItems" loading-text="正在加载数据..." fixed-header height="60vh">
               <template v-slot:item.moreInfo="{ item }">
                 <v-btn variant="tonal" @click="returnBook(item)">归还</v-btn>
               </template>

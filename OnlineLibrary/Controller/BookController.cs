@@ -218,7 +218,7 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
             Publisher = x.Book.Publisher,
             BorrowDate = x.BorrowDate.Date.ToString("yyyy-MM-dd"),
             ReturnDate = x.ReturnDate.Date.ToString("yyyy-MM-dd"),
-            BorrowDuration = ((int)(x.ReturnDate - x.BorrowDate).TotalDays).ToString(),
+            BorrowDuration = (x.ReturnDate - x.BorrowDate).TotalDays.ToString("F2"),
         }).ToArrayAsync();
         
         logger.LogInformation("Got {Count} borrow histories", await query.CountAsync());

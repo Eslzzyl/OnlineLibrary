@@ -117,7 +117,7 @@ const headers = ref([
     title: '借阅时长（天）',
     align: 'center',
     sortable: true,
-    key: 'borrowTime',
+    key: 'borrowDuration',
   },
 ])
 
@@ -148,7 +148,6 @@ async function request(page, itemsPerPage, sortBy, search) {
 async function loadItems({ page, itemsPerPage, sortBy }) {
   loading.value = true
   const result = await request(page, itemsPerPage, sortBy, search.value)
-  console.log("result: ", result)
   totalItems.value = result.recordCount
   pageCount.value = Math.floor(result.recordCount / result.pageSize) + 1
   const packedData = result.data

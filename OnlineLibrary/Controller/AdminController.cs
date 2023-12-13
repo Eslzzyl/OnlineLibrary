@@ -199,4 +199,66 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
             Data = recommend,
         };
     }
+    
+    [Authorize(Roles = RoleNames.Admin)]
+    [HttpGet("statistics")]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+    public async Task<ResultDto<AdminStatisticsDto>> GetStatistics() {
+        var currentBorrows = await context.CurrentBorrows.ToListAsync();
+        var borrowHistories = await context.BorrowHistories
+            .Include(x => x.Book)
+            .ToListAsync();
+        
+        var totalCurrentBorrowedBooks = currentBorrows.Count;
+        var totalHistoryBorrowedBooks = borrowHistories.Count;
+        
+        var totalUsers = await context.Users.CountAsync();
+        
+        var past12Months = Enumerable.Range(0, 12)
+            .Select(i => DateTime.Now.AddMonths(-i).ToString("yyyy-MM"))
+            .Reverse();
+        var monthlyBorrowedBooks = new Dictionary<string, int>();
+        foreach (var month in past12Months) {
+            var count = borrowHistories.Count(x => x.BorrowDate.ToString("yyyy-MM") == month);
+            monthlyBorrowedBooks.Add(month, count);
+        }
+        
+        var zhongTuClassification = new ZhongTuClassification();
+        var borrowedBooksByClassification = borrowHistories
+            .GroupBy(x => x.Book.Identifier[..1])
+            .Select(x => new {
+                Classification = zhongTuClassification.GetClassificationName(x.Key),
+                Count = x.Count(),
+            })
+            .OrderBy(x => x.Classification)
+            .ToDictionary(g => g.Classification, g => g.Count);
+        
+        var averageBorrowDuration = borrowHistories
+            .Average(x => (x.ReturnDate - x.BorrowDate).TotalDays);
+        var unhandledRecommends = await context.Recommends.CountAsync(x => !x.IsProcessed);
+        
+        logger.LogInformation("Admin {AdminId} is querying statistics: {Info}", GetAdminId(), new {
+            totalCurrentBorrowedBooks,
+            totalHistoryBorrowedBooks,
+            totalUsers,
+            monthlyBorrowedBooks,
+            borrowedBooksByClassification,
+            averageBorrowDuration,
+            unhandledRecommends,
+        });
+        
+        return new ResultDto<AdminStatisticsDto>() {
+            Code = 0,
+            Message = "OK",
+            Data = new AdminStatisticsDto() {
+                TotalHistoryBorrowedBooks = totalHistoryBorrowedBooks,
+                TotalCurrentBorrowedBooks = totalCurrentBorrowedBooks,
+                TotalUsers = totalUsers,
+                MonthlyBorrowedBooks = monthlyBorrowedBooks,
+                BorrowedBooksByClassification = borrowedBooksByClassification,
+                AverageBorrowDuration = averageBorrowDuration.ToString("F2"),
+                UnhandledRecommends = unhandledRecommends,
+            },
+        };
+    }
 }

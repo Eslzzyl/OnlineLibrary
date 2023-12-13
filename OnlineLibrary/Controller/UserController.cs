@@ -111,7 +111,7 @@ public class UserController(
             Publisher = x.Book.Publisher,
             BorrowDate = x.BorrowDate.Date.ToString("yyyy-MM-dd"),
             ReturnDate = x.ReturnDate.Date.ToString("yyyy-MM-dd"),
-            BorrowDuration = ((int)(x.ReturnDate - x.BorrowDate).TotalDays).ToString("F2", CultureInfo.InvariantCulture),
+            BorrowDuration = (x.ReturnDate - x.BorrowDate).TotalDays.ToString("F2"),
         }).ToArrayAsync();
         return new ResultDto<BorrowDto[]>() {
             Code = 0,
@@ -315,7 +315,7 @@ public class UserController(
             .Include(x => x.Book)
             .AsEnumerable();
         var enumerable = borrowHistories as BorrowHistory[] ?? borrowHistories.ToArray();
-        var totalBorrowedBooks = enumerable.Count();
+        var totalBorrowedBooks = enumerable.Length;
         var lastMonthBorrowedBooks = enumerable.Count(x => x.BorrowDate > DateTime.Now.AddMonths(-1));
 
         var past12Months = Enumerable.Range(0, 12)
@@ -339,7 +339,7 @@ public class UserController(
         var averageBorrowDuration = enumerable
             .Average(x => (x.ReturnDate - x.BorrowDate).TotalDays);
         
-        logger.LogInformation("User {UserId} statistics: {0}", userId, new {
+        logger.LogInformation("User {UserId} statistics: {Info}", userId, new {
             totalBorrowedBooks,
             lastMonthBorrowedBooks,
             monthlyBorrowedBooks,

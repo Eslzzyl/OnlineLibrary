@@ -10,6 +10,8 @@
         </v-sheet>
 
         <v-list nav>
+          <v-list-item prepend-icon="mdi-book-search-outline" title="主页" value="admin_home" rounded="xl"
+            @click="changeView(AdminHome);"></v-list-item>
           <v-list-item prepend-icon="mdi-book-search-outline" title="书籍管理" value="admin_books" rounded="xl"
             @click="changeView(AdminBooks);"></v-list-item>
           <v-list-item prepend-icon="mdi-book-open-page-variant-outline" title="当前借阅" value="admin_current_borrow" rounded="xl"
@@ -71,6 +73,7 @@
 import { ref, shallowRef, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
+import AdminHome from './AdminHome.vue';
 import AdminBooks from './AdminBooks.vue';
 import AdminUsers from './AdminUsers.vue';
 import AdminLogs from './AdminLogs.vue';

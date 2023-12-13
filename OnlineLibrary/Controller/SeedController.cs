@@ -44,7 +44,7 @@ public class SeedController(
         var records = csv.GetRecords<BookRecord>();
         foreach (var record in records) {
             if (existingBooks.ContainsKey(record.Identifier)) {
-                logger.LogInformation($"Book {record.Title} already exists.");
+                logger.LogInformation("Book {Title} already exists.", record.Title);
                 continue;
             }
             var book = new Book() {
@@ -58,7 +58,7 @@ public class SeedController(
                 InboundDate = DateTime.Now,
             };
             await context.Books.AddAsync(book);
-            logger.LogInformation($"Book {record.Title} added.");
+            logger.LogInformation("Book {Title} added.", record.Title);
         }
         await context.SaveChangesAsync();
 
@@ -99,30 +99,39 @@ public class SeedController(
         if (user == null) {
             user = new ApiUser() {
                 UserName = "TestUser",
-                Email = "",
+                Email = "testuser@online-library.org",
             };
-            await userManager.CreateAsync(user, "TestUser");
-            await userManager.AddPasswordAsync(user, "123456");
+            await userManager.CreateAsync(user, "123456");
             usersCreated++;
         }
+        
         var moderator = await userManager.FindByNameAsync("TestModerator");
         if (moderator == null) {
             moderator = new ApiUser() {
                 UserName = "TestModerator",
-                Email = "",
+                Email = "testmoderator@online-library.org",
             };
-            await userManager.CreateAsync(moderator, "TestModerator");
-            await userManager.AddPasswordAsync(moderator, "123456");
+            await userManager.CreateAsync(moderator, "123456");
             usersCreated++;
         }
+        
         var admin = await userManager.FindByNameAsync("TestAdmin");
         if (admin == null) {
             admin = new ApiUser() {
                 UserName = "TestAdmin",
-                Email = "",
+                Email = "testadmin@online-library.org",
             };
-            await userManager.CreateAsync(admin, "TestAdmin");
-            await userManager.AddPasswordAsync(admin, "123456");
+            await userManager.CreateAsync(admin, "123456");
+            usersCreated++;
+        }
+        
+        var deleted = await userManager.FindByNameAsync("DeletedUser");
+        if (deleted == null) {
+            deleted = new ApiUser() {
+                UserName = "DeletedUser",
+                Email = "deleted@online-library.org",
+            };
+            await userManager.CreateAsync(deleted, "123456");
             usersCreated++;
         }
 
@@ -174,6 +183,14 @@ public class SeedController(
             }
             if (!await userManager.IsInRoleAsync(testAdmin, RoleNames.User)) {
                 await userManager.AddToRoleAsync(testAdmin, RoleNames.User);
+            }
+            usersAddedToRoles++;
+        }
+        
+        var deletedUser = await userManager.FindByNameAsync("DeletedUser");
+        if (deletedUser != null) {
+            if (!await userManager.IsInRoleAsync(deletedUser, RoleNames.User)) {
+                await userManager.AddToRoleAsync(deletedUser, RoleNames.User);
             }
             usersAddedToRoles++;
         }

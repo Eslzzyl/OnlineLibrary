@@ -4,9 +4,9 @@ public record ResultDto<T>
 {
     public T? Data { get; set; } = default!;
     
-    public int Code { get; set; } = 0;
+    public required int Code { get; set; } = 0;
     
-    public string Message { get; set; } = string.Empty;
+    public required string Message { get; set; } = string.Empty;
     
     public int PageIndex { get; set; }
     

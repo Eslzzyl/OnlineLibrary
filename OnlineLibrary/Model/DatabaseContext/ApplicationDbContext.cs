@@ -13,13 +13,6 @@ public class ApplicationDbContext : IdentityDbContext<ApiUser>
 
         modelBuilder.Entity<CurrentBorrow>()
             .HasKey(i => new { i.BookId, i.UserId });
-
-        modelBuilder.Entity<CurrentBorrow>()
-            .HasOne(x => x.Book)
-            .WithMany(y => y.CurrentBorrows)
-            .HasForeignKey(x => x.BookId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.NoAction);
         
         modelBuilder.Entity<CurrentBorrow>()
             .HasOne(x => x.User)
@@ -30,13 +23,6 @@ public class ApplicationDbContext : IdentityDbContext<ApiUser>
         
         modelBuilder.Entity<BorrowHistory>()
             .HasKey(i => new { i.BookId, i.UserId });
-        
-        modelBuilder.Entity<BorrowHistory>()
-            .HasOne(x => x.Book)
-            .WithMany(y => y.BorrowHistories)
-            .HasForeignKey(x => x.BookId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<BorrowHistory>()
             .HasOne(x => x.User)

@@ -112,7 +112,7 @@ function logout() {
 onMounted(() => {
   adminName.value = window.localStorage.getItem("name") as string;
   adminAvatar.value = window.localStorage.getItem("avatar") as string;
-  currentView.value = AdminBooks;
+  currentView.value = AdminHome;
 })
 
 </script>

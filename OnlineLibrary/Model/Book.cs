@@ -38,8 +38,4 @@ public class Book
     
     [Required]
     public uint Borrowed { get; set; }
-
-    public ICollection<CurrentBorrow> CurrentBorrows { get; set; } = default!;
-    
-    public ICollection<BorrowHistory> BorrowHistories { get; set; } = default!;
 }

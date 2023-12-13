@@ -336,8 +336,11 @@ public class UserController(
             })
             .OrderBy(x => x.Classification)
             .ToDictionary(g => g.Classification, g => g.Count);
-        var averageBorrowDuration = enumerable
-            .Average(x => (x.ReturnDate - x.BorrowDate).TotalDays);
+        double averageBorrowDuration;
+        if (totalBorrowedBooks == 0)
+            averageBorrowDuration = 0;
+        else
+            averageBorrowDuration = enumerable.Average(x => (x.ReturnDate - x.BorrowDate).TotalDays);
         
         logger.LogInformation("User {UserId} statistics: {Info}", userId, new {
             totalBorrowedBooks,

@@ -103,14 +103,69 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
                 Data = null,
             };
         }
+        // 如果用户名是DeletedUser，不能删除
+        if (user.UserName == "DeletedUser") {
+            return new ResultDto<ApiUser>() {
+                Code = 1,
+                Message = "Cannot remove the user 'DeletedUser' because this is a special user.",
+                Data = null,
+            };
+        }
         context.Users.Remove(user);
 
-        var histories = await context.BorrowHistories.Where(x => x.UserId == userId).ToListAsync();
-        context.BorrowHistories.RemoveRange(histories);
-        var current = await context.CurrentBorrows.Where(x => x.UserId == userId).ToListAsync();
-        context.CurrentBorrows.RemoveRange(current);
+        // 将该用户的各种记录移动到 DeletedUser 名下
+        var deletedUser = await userManager.FindByNameAsync("DeletedUser");
+        if (deletedUser == null) {
+            deletedUser = new ApiUser() {
+                UserName = "DeletedUser",
+                Email = "deleted@oneline-library.org",
+                EmailConfirmed = true,
+                PhoneNumber = "00000000000",
+                PhoneNumberConfirmed = true,
+            };
+            await userManager.CreateAsync(deletedUser);
+        }
+        var histories = await context.BorrowHistories.Where(x => x.UserId == userId)
+            .Include(borrowHistory => borrowHistory.Book).ToListAsync();
+        context.RemoveRange(histories);
+        foreach (var history in histories) {
+            context.BorrowHistories.Add(new BorrowHistory() {
+                UserId = deletedUser.Id,
+                BookId = history.BookId,
+                BorrowDate = history.BorrowDate,
+                ReturnDate = history.ReturnDate,
+                Book = history.Book,
+                User = deletedUser,
+            });
+        }
+        var current = await context.CurrentBorrows.Where(x => x.UserId == userId)
+            .Include(currentBorrow => currentBorrow.Book).ToListAsync();
+        context.RemoveRange(current);
+        foreach (var borrow in current) {
+            context.CurrentBorrows.Add(new CurrentBorrow() {
+                UserId = deletedUser.Id,
+                BookId = borrow.BookId,
+                BorrowDate = borrow.BorrowDate,
+                Book = borrow.Book,
+                User = deletedUser,
+            });
+        }
         var recommends = await context.Recommends.Where(x => x.UserId == userId).ToListAsync();
-        context.Recommends.RemoveRange(recommends);
+        context.RemoveRange(recommends);
+        foreach (var recommend in recommends) {
+            context.Recommends.Add(new Recommend() {
+                UserId = deletedUser.Id,
+                AdminId = recommend.AdminId,
+                Title = recommend.Title,
+                Author = recommend.Author,
+                Publisher = recommend.Publisher,
+                Isbn = recommend.Isbn,
+                UserRemark = recommend.UserRemark,
+                AdminRemark = recommend.AdminRemark,
+                CreateTime = recommend.CreateTime,
+                UpdateTime = recommend.UpdateTime,
+            });
+        }
         
         await context.SaveChangesAsync();
         
@@ -232,9 +287,13 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
             })
             .OrderBy(x => x.Classification)
             .ToDictionary(g => g.Classification, g => g.Count);
+
+        double averageBorrowDuration;
+        if (totalHistoryBorrowedBooks == 0)
+            averageBorrowDuration = 0;
+        else
+            averageBorrowDuration = borrowHistories.Average(x => (x.ReturnDate - x.BorrowDate).TotalDays);
         
-        var averageBorrowDuration = borrowHistories
-            .Average(x => (x.ReturnDate - x.BorrowDate).TotalDays);
         var unhandledRecommends = await context.Recommends.CountAsync(x => !x.IsProcessed);
         
         logger.LogInformation("Admin {AdminId} is querying statistics: {Info}", GetAdminId(), new {

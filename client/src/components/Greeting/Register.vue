@@ -109,8 +109,8 @@ function onRegisterSubmit() {
     snackbar.value = true
   }).catch((error) => {
     let message;
-    if (typeof error.response !== 'undefined') {   // 后端返回错误的情况
-      message = error.response.data.detail
+    if (error.message == 'Request failed with status code 400') {   // 后端返回错误的情况
+      message = "已经存在一个同名用户"
     } else {    // axios 本身遇到错误的情况
       message = error
     }

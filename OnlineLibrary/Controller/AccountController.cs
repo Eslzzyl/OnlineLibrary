@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using OnlineLibrary.Constant;
 using OnlineLibrary.Dto;
 using OnlineLibrary.Model;
-using OnlineLibrary.Model.DatabaseContext;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -44,6 +43,10 @@ public class AccountController(
     public async Task<ActionResult> Register(RegisterRequestDto input) {
         try {
             if (ModelState.IsValid) {
+                var user = await userManager.FindByNameAsync(input.UserName);
+                if (user != null) {
+                    return StatusCode(StatusCodes.Status400BadRequest, "User already exists.");
+                }
                 var newUser = new ApiUser {
                     UserName = input.UserName,
                 };
@@ -53,7 +56,7 @@ public class AccountController(
                     await userManager.AddToRoleAsync(newUser, RoleNames.User);
                     logger.LogInformation("User {userName} ({email}) has been created.", newUser.UserName,
                         newUser.Email);
-                    return StatusCode(201, $"User '{newUser.UserName}' has been created.");
+                    return StatusCode(StatusCodes.Status201Created, $"User '{newUser.UserName}' has been created.");
                 }
                 else {
                     var description = result.Errors.Select(error => error.Description).FirstOrDefault();
@@ -93,6 +96,9 @@ public class AccountController(
                     await userManager.FindByEmailAsync(input.Account);
                 if (user == null) {
                     return StatusCode(StatusCodes.Status404NotFound, "User not found.");
+                }
+                else if (user.UserName == "DeletedUser") {
+                    return StatusCode(StatusCodes.Status400BadRequest, "You are trying to login as a special user.");
                 }
                 else if (!await userManager.CheckPasswordAsync(user, input.Password)) {
                     return StatusCode(StatusCodes.Status401Unauthorized, "Incorrect password.");

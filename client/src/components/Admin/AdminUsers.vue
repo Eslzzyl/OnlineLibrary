@@ -27,7 +27,8 @@
                 </v-avatar>
               </template>
               <template v-slot:item.moreInfo="{ item }">
-                <v-btn :disabled="item.roles.includes('Admin')" variant="tonal" color="red-darken-1" @click="deleteUser(item)">删除</v-btn>
+                <v-btn :disabled="item.roles.includes('Admin') || item.userName == 'DeletedUser'" variant="tonal"
+                  color="red-darken-1" @click="deleteUser(item)">删除</v-btn>
               </template>
               <template v-slot:bottom>
                 <div class="text-center pt-2">
@@ -46,7 +47,7 @@
           <v-card-text>
             <v-container>
               <v-row>
-                <span>你确定要删除这个用户吗？该操作不可撤销。删除后，与该用户关联的所有借阅记录也将被一并删除。</span>
+                <span>你确定要删除这个用户吗？该操作不可撤销。删除后，与该用户关联的所有记录将被移动到“已删除用户”的名下。</span>
               </v-row>
               <v-row>
                 <span>{{ currItem.userName }}</span>
@@ -110,26 +111,26 @@ function deleteUser(item) {
 function deleteConfirmed() {
   const url = `/admin/user?userId=${currItem.value.id}`;
   axiosInstance.delete(url)
-  .then((response) => {
-    if (response.data.code === 0) {
-      console.log("删除成功");
-      prompt.value = "删除成功";
+    .then((response) => {
+      if (response.data.code === 0) {
+        console.log("删除成功");
+        prompt.value = "删除成功";
+        snackbar.value = true;
+        loadItems({
+          page: 1,
+          itemsPerPage: itemsPerPage.value,
+          sortBy: sortBy.value
+        })
+      } else {
+        console.log("删除失败");
+        prompt.value = "删除失败" + response.data.message;
+        snackbar.value = true;
+      }
+    }).catch((error) => {
+      console.log(error);
+      prompt.value = "删除失败" + error.message;
       snackbar.value = true;
-      loadItems({
-        page: 1,
-        itemsPerPage: itemsPerPage.value,
-        sortBy: sortBy.value
-      })
-    } else {
-      console.log("删除失败");
-      prompt.value = "删除失败" + response.data.message;
-      snackbar.value = true;
-    }
-  }).catch((error) => {
-    console.log(error);
-    prompt.value = "删除失败" + error.message;
-    snackbar.value = true;
-  })
+    })
 }
 
 watch(page, () => {

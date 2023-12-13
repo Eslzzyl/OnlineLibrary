@@ -33,12 +33,14 @@
           <v-col>
             <span class="chart-title">借阅书籍分类统计</span>
             <div class="chart">
+              <span v-if="isPieEmpty">暂无借阅记录</span>
               <Pie :data="borrowByClassfication" :options="pieOptions" />
             </div>
           </v-col>
           <v-col>
             <span class="chart-title">过去12个月借阅书籍数量统计</span>
             <div class="chart">
+              <span v-if="isPieEmpty">暂无借阅记录</span>
               <Bar :data="monthlyBorrow" :options="barOptions" />
             </div>
           </v-col>
@@ -108,6 +110,8 @@ const monthlyBorrowdBooks = ref([])
 const borrowedBooksByClassification = ref({})
 const averageBorrowDuration = ref('')
 const unhandledRecommends = ref(0)
+const isPieEmpty = ref(false)
+const isBarEmpty = ref(false)
 
 const theme = useTheme();
 
@@ -185,25 +189,32 @@ async function request() {
 function formatData() {
   const currentTheme = theme.global.name.value == "dark" ? "dark" : "light";
 
-  borrowByClassfication.value = {
-    labels: Object.keys(borrowedBooksByClassification.value),
-    datasets: [
-      {
-        backgroundColor: getRandomColorList(Object.keys(borrowedBooksByClassification.value).length, currentTheme),
-        data: Object.values(borrowedBooksByClassification.value),
-      },
-    ],
-  };
-
-  monthlyBorrow.value = {
-    labels: Object.keys(monthlyBorrowdBooks.value),
-    datasets: [
-      {
-        backgroundColor: getRandomColorList(Object.keys(monthlyBorrowdBooks.value).length, currentTheme),
-        data: Object.values(monthlyBorrowdBooks.value),
-      },
-    ],
-  };
+  // 仅当有历史借阅记录时才格式化饼图数据
+  if (totalHistoryBorrowedBooks.value != 0) {
+    borrowByClassfication.value = {
+      labels: Object.keys(borrowedBooksByClassification.value),
+      datasets: [
+        {
+          backgroundColor: getRandomColorList(Object.keys(borrowedBooksByClassification.value).length, currentTheme),
+          data: Object.values(borrowedBooksByClassification.value),
+        },
+      ],
+    };
+    monthlyBorrow.value = {
+      labels: Object.keys(monthlyBorrowdBooks.value),
+      datasets: [
+        {
+          backgroundColor: getRandomColorList(Object.keys(monthlyBorrowdBooks.value).length, currentTheme),
+          data: Object.values(monthlyBorrowdBooks.value),
+        },
+      ],
+    };
+    isPieEmpty.value = false;
+    isBarEmpty.value = false;
+  } else {
+    isPieEmpty.value = true;
+    isBarEmpty.value = true;
+  }
 }
 
 </script>

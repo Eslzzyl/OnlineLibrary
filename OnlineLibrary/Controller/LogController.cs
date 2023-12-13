@@ -5,6 +5,7 @@ using OnlineLibrary.Constant;
 using OnlineLibrary.Dto;
 using OnlineLibrary.Model;
 using OnlineLibrary.Model.DatabaseContext;
+using Serilog;
 using System.Linq.Dynamic.Core;
 
 namespace OnlineLibrary.Controller;
@@ -13,7 +14,8 @@ namespace OnlineLibrary.Controller;
 [ApiController]
 public class LogController(ApplicationDbContext context,
     LogsDbContext logsDbContext,
-    ILogger<LogController> logger)
+    ILogger<LogController> logger,
+    IConfiguration configuration)
     : ControllerBase
 {
     [HttpGet]
@@ -46,6 +48,31 @@ public class LogController(ApplicationDbContext context,
             PageIndex = pageIndex,
             PageSize = pageSize,
             RecordCount = recordCount,
+        };
+    }
+    
+    [HttpDelete]
+    [Authorize(Roles = RoleNames.Admin)]
+    public async Task<ResultDto<LogEvent>> Delete() {
+        // Stop Serilog logging and flush all cached logs
+        await Log.CloseAndFlushAsync();
+        
+        // Delete all logs from database
+        logsDbContext.LogEvents.RemoveRange(logsDbContext.LogEvents);
+        await logsDbContext.SaveChangesAsync();
+        logsDbContext.RunVacuum();
+        
+        // Restart Serilog logging
+        var projectRootPath = Directory.GetCurrentDirectory();
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .WriteTo.SQLite(Path.Combine(projectRootPath, "./Data/Logs.db"), tableName: "LogEvents")
+            .CreateLogger();
+        
+        return new ResultDto<LogEvent>() {
+            Data = null,
+            Code = 0,
+            Message = "OK",
         };
     }
 }

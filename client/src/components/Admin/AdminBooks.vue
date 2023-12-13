@@ -16,7 +16,7 @@
             </v-card>
           </v-col>
           <v-col cols="1">
-            <v-btn variant="tonal" @click="add(item)">新增</v-btn>
+            <v-btn variant="tonal" @click="add">新增</v-btn>
           </v-col>
         </v-row>
         <v-row>
@@ -133,8 +133,7 @@ const currItem = ref(null)
 const snackbar = ref(false)
 const prompt = ref('')
 
-function add(item) {
-  console.log(item)
+function add() {
   addDialog.value = true
 }
 

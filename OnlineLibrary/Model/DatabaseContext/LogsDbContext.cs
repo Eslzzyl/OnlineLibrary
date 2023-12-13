@@ -6,6 +6,10 @@ public class LogsDbContext : DbContext
 {
     public LogsDbContext(DbContextOptions<LogsDbContext> options)
         : base(options) { }
+    
+    public void RunVacuum() {
+        Database.ExecuteSqlRaw("VACUUM");
+    }
 
     public DbSet<LogEvent> LogEvents { get; set; }
 

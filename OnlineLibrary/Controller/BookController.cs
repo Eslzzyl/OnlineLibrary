@@ -160,8 +160,8 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
                 x.Book.Publisher.Contains(filterQuery));
         }
         var recordCount = await query.CountAsync();
-        query = (IQueryable<CurrentBorrow>)DynamicQueryableExtensions.Skip(query
-                .OrderBy($"Book.{sortColumn} {sortOrder}"), pageIndex * pageSize)
+        query = (IQueryable<CurrentBorrow>)DynamicQueryableExtensions
+            .Skip(query.OrderBy($"Book.{sortColumn} {sortOrder}"), pageIndex * pageSize)
             .Take(pageSize);
         var dto = await query.Select(x => new BorrowDto() {
             Id = x.BookId,
@@ -171,6 +171,7 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
             Publisher = x.Book.Publisher,
             BorrowDate = x.BorrowDate.Date.ToString("yyyy-MM-dd"),
             ReturnDate = null,
+            BorrowDuration = (DateTime.Now - x.BorrowDate).TotalDays.ToString("F2"),
         }).ToArrayAsync();
         
         logger.LogInformation("Got {Count} current borrows", await query.CountAsync());

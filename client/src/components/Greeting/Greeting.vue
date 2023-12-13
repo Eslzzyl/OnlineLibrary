@@ -22,9 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, onBeforeUnmount, ref, shallowRef} from 'vue'
-import * as THREE from 'three'
-import GLOBE from "vanta/dist/vanta.globe.min"
+import {onMounted, onBeforeUnmount, ref, shallowRef} from 'vue';
+import {useTheme} from 'vuetify';
+import * as THREE from 'three';
+import GLOBE from "vanta/dist/vanta.globe.min";
 
 import Login from './Login.vue';
 import Register from './Register.vue';
@@ -33,6 +34,7 @@ import Theme from './Theme.vue';
 import {getSkyColor} from "@/plugins/util/color";
 
 const skyColor = getSkyColor();
+const theme = useTheme();
 
 const vantaRef = ref(null)
 let vantaEffect: any = null
@@ -40,7 +42,21 @@ let vantaEffect: any = null
 const currComponent = shallowRef<any>()
 currComponent.value = Login
 
+let backgroundColor = ref(0);
+let lineColor = ref(0);
+let lineColor2 = ref(0);
+
 onMounted(() => {
+  const preferDark = theme.global.current.value.dark;
+  if (preferDark) {
+    backgroundColor.value = 0x11182a;
+    lineColor.value = 0xdfe0ff;
+    lineColor2.value = 0xffffff;
+  } else {
+    backgroundColor.value = 0xdbdbe3;
+    lineColor.value = 0x3e3ef2;
+    lineColor2.value = 0x5e8cf5;
+  }
   vantaEffect = GLOBE({
     el: vantaRef.value,
     THREE: THREE,
@@ -51,6 +67,9 @@ onMounted(() => {
     mouseControls: true,
     touchControls: true,
     gyroControls: false,
+    backgroundColor: backgroundColor.value,
+    color: lineColor.value,
+    color2: lineColor2.value
   })
 })
 

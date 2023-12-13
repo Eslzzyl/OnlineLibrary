@@ -207,8 +207,14 @@ const headers = ref([
   {
     title: '在馆数量',
     align: 'center',
-    sortable: false,
+    sortable: true,
     key: 'inventory',
+  },
+  {
+    title: '累计借阅',
+    align: 'center',
+    sortable: true,
+    key: 'borrowed',
   },
   {
     title: '操作',

@@ -80,6 +80,7 @@ function onLoginSubmit() {
     account: userAccount.value,
     password: password.value,
   }).then((response) => {
+    console.log(response);
     const { userName: name, token: token, role: userType, avatar: avatar } = response.data;
     window.localStorage.setItem("name", name);
     window.localStorage.setItem("token", token);
@@ -94,11 +95,12 @@ function onLoginSubmit() {
       snackbar.value = true;
     }
   }).catch((error) => {
+    console.error(error);
     let message;
-    if (typeof error.response !== 'undefined') {   // 后端返回错误的情况
-      message = error.response.data.detail
+    if (error.message == 'Request failed with status code 401') {   // 密码错误的情况
+      message = "密码错误"
     } else {    // axios 本身遇到错误的情况
-      message = error
+      message = error.message
     }
     loginPrompt.value = "遇到错误：" + message;
     snackbar.value = true;

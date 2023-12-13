@@ -107,6 +107,12 @@ const headers = ref([
     sortable: true,
     key: 'borrowDate',
   },
+  {
+    title: '借阅时长（天）',
+    align: 'center',
+    sortable: true,
+    key: 'borrowDuration',
+  },
 ])
 
 async function request(page, itemsPerPage, sortBy, search) {

@@ -111,6 +111,14 @@ builder.Services.AddDbContext<LogsDbContext>(opt => {
 
 var app = builder.Build();
 
+// Pre-warm the database connection by executing a simple query
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var bookCount = dbContext.Books.Count();
+    Console.WriteLine($"Number of books in the database: {bookCount}");
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
     app.UseSwagger();

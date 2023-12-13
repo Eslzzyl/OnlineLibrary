@@ -105,23 +105,28 @@
             <v-container>
               <v-row>
                 <v-col>
-                  <v-text-field variant="outlined" clearable :rules="notNullRule" v-model="title" label="书名" hint="必填" persistent-hint></v-text-field>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="title" label="书名" hint="必填"
+                    persistent-hint></v-text-field>
                 </v-col>
                 <v-col>
-                  <v-text-field variant="outlined" clearable v-model="author" label="作者" hint="选填" persistent-hint></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>
-                  <v-text-field variant="outlined" clearable v-model="publisher" label="出版社" hint="选填" persistent-hint></v-text-field>
-                </v-col>
-                <v-col>
-                  <v-text-field variant="outlined" clearable v-model="isbn" label="ISBN" hint="选填" persistent-hint></v-text-field>
+                  <v-text-field variant="outlined" clearable v-model="author" label="作者" hint="选填"
+                    persistent-hint></v-text-field>
                 </v-col>
               </v-row>
               <v-row>
                 <v-col>
-                  <v-textarea variant="outlined" clearable v-model="remark" label="备注" hint="选填" persistent-hint></v-textarea>
+                  <v-text-field variant="outlined" clearable v-model="publisher" label="出版社" hint="选填"
+                    persistent-hint></v-text-field>
+                </v-col>
+                <v-col>
+                  <v-text-field variant="outlined" clearable v-model="isbn" label="ISBN" hint="选填"
+                    persistent-hint></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-textarea variant="outlined" clearable v-model="remark" label="备注" hint="选填"
+                    persistent-hint></v-textarea>
                 </v-col>
               </v-row>
             </v-container>
@@ -130,7 +135,8 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue-darken-1" variant="text" @click="newRecommendDialog = false;">取消</v-btn>
-            <v-btn color="blue-darken-1" variant="text" @click="newRecommendDialog = false; newRecommendConfirmed()">提交</v-btn>
+            <v-btn color="blue-darken-1" variant="text"
+              @click="newRecommendDialog = false; newRecommendConfirmed()">提交</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -186,17 +192,15 @@ const isbn = ref('')
 const remark = ref('')
 
 
-const notNullRule = [
-  (value) => {
-    if (value !== '') {
-      submitButtonDisabled.value = false;
-      return true;
-    } else {
-      submitButtonDisabled.value = true;
-      return '请填入信息';
-    }
-  },
-]
+const notNullRule = (value) => {
+  if (value !== '') {
+    submitButtonDisabled.value = false;
+    return true;
+  } else {
+    submitButtonDisabled.value = true;
+    return '请填入信息';
+  }
+}
 
 function moreInfo(item) {
   currItem.value = item

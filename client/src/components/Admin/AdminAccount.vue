@@ -57,7 +57,7 @@
                 </v-col>
                 <v-col>
                   <v-text-field variant="outlined" v-model="newPasswordConfirmed" label="再次输入以确认密码"
-                    :rules="passwordConfirmRules"></v-text-field>
+                    :rules="[passwordConfirmRule]"></v-text-field>
                 </v-col>
               </v-row>
             </v-container>
@@ -108,15 +108,13 @@ const emit = defineEmits<{
 // https://cn.vuejs.org/api/built-in-special-attributes.html#ref
 const avatarSelector = ref<HTMLElement>()
 
-const passwordConfirmRules = [
-  () => {
-    if (newPassword.value === newPasswordConfirmed.value) {
-      return true
-    } else {
-      return '两次输入的密码不一致'
-    }
-  },
-]
+const passwordConfirmRule = () => {
+  if (newPassword.value === newPasswordConfirmed.value) {
+    return true
+  } else {
+    return '两次输入的密码不一致'
+  }
+}
 
 onMounted(() => {
   let username = window.localStorage.getItem("name")

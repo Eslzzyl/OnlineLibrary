@@ -16,11 +16,11 @@
               <v-row>
                 <v-col>
                   <v-text-field variant="outlined" v-model="borrowLimit" label="用户借阅册数上限" hint="设为0时，表示不设上限"
-                    persistent-hint :rules="isNumberRules"></v-text-field>
+                    persistent-hint :rules="[isPositiveIntegerRule]"></v-text-field>
                 </v-col>
                 <v-col>
                   <v-text-field variant="outlined" v-model="borrowDuration" label="用户借阅时间上限（天）" hint="设为0时，表示不设上限"
-                    persistent-hint :rules="isNumberRules"></v-text-field>
+                    persistent-hint :rules="[isPositiveIntegerRule]"></v-text-field>
                 </v-col>
               </v-row>
               <v-row>
@@ -60,21 +60,19 @@ const requestError = ref()
 const snackbar = ref(false)
 const prompt = ref('')
 
-const isNumberRules = [
-  (value: string) => {
-    if (/^(0|[1-9]\d*)$/.test(value)) {
-      return true;
-    } else {
-      return '请输入正整数！';
-    }
-  },
-]
+const isPositiveIntegerRule = (value: string) => {
+  if (/^(0|[1-9]\d*)$/.test(value)) {
+    return true;
+  } else {
+    return '请输入正整数！';
+  }
+}
 
 onMounted(() => {
   const url = '/admin/settings';
   axiosInstance.get(url).then((response) => {
     console.log(response)
-    
+
     if (response.data.code === 0) {
       borrowLimit.value = response.data.data.borrowLimit;
       borrowDuration.value = response.data.data.borrowDurationDays;

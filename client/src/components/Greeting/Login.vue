@@ -11,7 +11,7 @@
               <v-icon icon="mdi-account"></v-icon>
             </v-col>
             <v-col cols="11">
-              <v-text-field v-model="userAccount" :rules="notNullRule" label="账号" />
+              <v-text-field v-model="userAccount" :rules="[notNullRule]" label="账号" />
             </v-col>
           </v-row>
           <v-row>
@@ -19,9 +19,8 @@
               <v-icon icon="mdi-lock"></v-icon>
             </v-col>
             <v-col cols="11">
-              <v-text-field v-model="password" :rules="notNullRule" label="密码"
-                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
+              <v-text-field v-model="password" :rules="[notNullRule]" label="密码"
+                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword" />
             </v-col>
           </v-row>
@@ -60,17 +59,15 @@ const submitButtonDisabled = ref(true)
 const submitButtonLoading = ref(false)
 const showPassword = ref(false)
 
-const notNullRule = [
-  (value: string | any[]) => {
-    if (value !== '') {
-      submitButtonDisabled.value = false;
-      return true;
-    } else {
-      submitButtonDisabled.value = true;
-      return '请填入信息';
-    }
-  },
-]
+const notNullRule = (value: string | any[]) => {
+  if (value !== '') {
+    submitButtonDisabled.value = false;
+    return true;
+  } else {
+    submitButtonDisabled.value = true;
+    return '请填入信息';
+  }
+}
 
 function onLoginSubmit() {
   submitButtonLoading.value = true;

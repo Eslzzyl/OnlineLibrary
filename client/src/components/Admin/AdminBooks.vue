@@ -5,7 +5,8 @@
       <v-container>
         <v-row>
           <v-col cols="3">
-            <v-text-field variant="outlined" density="compact" label="检索书籍..." v-model="search" clearable></v-text-field>
+            <v-text-field variant="outlined" density="compact" label="检索书籍..." v-model="search"
+                          clearable></v-text-field>
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="2">
@@ -22,8 +23,9 @@
         <v-row>
           <v-col>
             <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items-length="totalItems"
-              :items="tableData" :loading="loading" :search="search" class="elevation-1" item-value="name"
-              @update:options="loadItems" loading-text="正在加载数据..." fixed-header height="60vh">
+                                 :items="tableData" :loading="loading" :search="search" class="elevation-1"
+                                 item-value="name"
+                                 @update:options="loadItems" loading-text="正在加载数据..." fixed-header height="60vh">
               <template v-slot:item.moreInfo="{ item }">
                 <v-btn variant="tonal" @click="edit(item)">修改</v-btn>
                 <v-btn variant="tonal" color="red-darken-1" @click="deleteBook(item)">删除</v-btn>
@@ -44,14 +46,48 @@
           </v-card-title>
           <v-card-text>
             <v-container>
-              待补
+              <v-row>
+                <v-col>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="newBookTitle" label="书名"
+                                hint="必填" persistent-hint></v-text-field>
+                </v-col>
+                <v-col>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="newBookAuthor" label="作者"
+                                hint="必填" persistent-hint></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="newBookPublisher"
+                                label="出版社"
+                                hint="必填" persistent-hint></v-text-field>
+                </v-col>
+                <v-col cols="2">
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="newBookPublishedDate"
+                                label="出版年（月）" hint="必填，格式为“20xx(.x)”" persistent-hint></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="newBookIdentifier"
+                                label="索书号"
+                                hint="必填" persistent-hint></v-text-field>
+                </v-col>
+                <v-col cols="2">
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule, isPositiveIntegerRule]"
+                                v-model="newBookInventory" label="馆藏数量" hint="必填，请填入正整数"
+                                persistent-hint></v-text-field>
+                </v-col>
+              </v-row>
             </v-container>
           </v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue-darken-1" variant="text" @click="addDialog = false;">取消</v-btn>
-            <v-btn color="blue-darken-1" variant="text" @click="addDialog = false; addConfirmed()">确定</v-btn>
+            <v-btn :disabled="submitButtonDisabled" color="blue-darken-1" variant="text"
+                   @click="addDialog = false; addConfirmed()">确定
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -62,7 +98,40 @@
           </v-card-title>
           <v-card-text>
             <v-container>
-              待补
+              <v-row>
+                <v-col>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="currItem.title"
+                                label="书名"
+                                hint="必填" persistent-hint></v-text-field>
+                </v-col>
+                <v-col>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="currItem.author"
+                                label="作者"
+                                hint="必填" persistent-hint></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="currItem.publisher"
+                                label="出版社"
+                                hint="必填" persistent-hint></v-text-field>
+                </v-col>
+                <v-col cols="2">
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="currItem.publishedDate"
+                                label="出版年（月）" hint="必填，格式为“20xx(.x)”" persistent-hint></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule]" v-model="currItem.identifier"
+                                label="索书号" hint="必填" persistent-hint></v-text-field>
+                </v-col>
+                <v-col cols="2">
+                  <v-text-field variant="outlined" clearable :rules="[notNullRule, isNonNegativeIntegerRule]"
+                                v-model="currItem.inventory" label="馆藏数量" hint="必填，请填入非负整数"
+                                persistent-hint></v-text-field>
+                </v-col>
+              </v-row>
             </v-container>
           </v-card-text>
 
@@ -102,17 +171,24 @@
     </v-snackbar>
   </v-container>
 </template>
-  
+
 <script setup>
 import axiosInstance from '@/plugins/util/axiosInstance'
-import { ref, watch } from 'vue';
-import { getSkyColor } from '@/plugins/util/color';
+import {ref, watch} from 'vue';
+import {getSkyColor} from '@/plugins/util/color';
 
 import '@/style.css';
 
 const skyColor = getSkyColor();
 
 const tableData = ref([])
+
+const newBookTitle = ref('')
+const newBookAuthor = ref('')
+const newBookPublisher = ref('')
+const newBookPublishedDate = ref('')
+const newBookIdentifier = ref('')
+const newBookInventory = ref('')
 
 const search = ref('')
 
@@ -133,33 +209,110 @@ const currItem = ref(null)
 const snackbar = ref(false)
 const prompt = ref('')
 
+const submitButtonDisabled = ref(false)
+
+const notNullRule = (value) => {
+  if (value !== '') {
+    submitButtonDisabled.value = false;
+    return true;
+  } else {
+    submitButtonDisabled.value = true;
+    return '请填入信息';
+  }
+}
+
+const isPositiveIntegerRule = (value) => {
+  if (/^(0|[1-9]\d*)$/.test(value)) {
+    return true;
+  } else {
+    return '请输入正整数！';
+  }
+}
+
+const isNonNegativeIntegerRule = (value) => {
+  if (/^(0|[1-9]\d*)$/.test(value)) {
+    return true;
+  } else {
+    return '请输入正整数！';
+  }
+}
+
 function add() {
   addDialog.value = true
 }
 
 function edit(item) {
-  console.log(item)
   currItem.value = item
   editDialog.value = true
 }
 
 function deleteBook(item) {
-  console.log(item)
   currItem.value = item
   deleteDialog.value = true
 }
 
 function addConfirmed() {
   const url = '/book/';
-  axiosInstance.post(url, {
-    id: currItem.value.id
+  const bookDto = {
+    Title: newBookTitle.value,
+    Author: newBookAuthor.value,
+    Publisher: newBookPublisher.value,
+    PublishedDate: newBookPublishedDate.value,
+    Identifier: newBookIdentifier.value,
+    Inventory: Number(newBookInventory.value),
+  };
+  axiosInstance.post(url, bookDto).then((response) => {
+    if (response.data.code === 0) {
+      console.log("新增书籍成功")
+      prompt.value = "新增书籍成功";
+      snackbar.value = true;
+      loadItems({
+        page: 1,
+        itemsPerPage: itemsPerPage.value,
+        sortBy: sortBy.value
+      })
+    } else {
+      console.log("新增书籍失败");
+      prompt.value = "新增书籍失败：" + response.data.message;
+      snackbar.value = true;
+    }
+  }).catch((error) => {
+    console.log(error)
+    prompt.value = "新增书籍失败：" + error;
+    snackbar.value = true;
   })
 }
 
 function editConfirmed() {
   const url = '/book/';
-  axiosInstance.put(url, {
-    id: currItem.value.id
+  const bookDto = {
+    Id: currItem.value.id,
+    Title: currItem.value.title,
+    Author: currItem.value.author,
+    Publisher: currItem.value.publisher,
+    PublishedDate: currItem.value.publishedDate,
+    Identifier: currItem.value.identifier,
+    Inventory: currItem.value.inventory,
+  };
+  axiosInstance.put(url, bookDto).then((response) => {
+    if (response.data.code === 0) {
+      console.log("修改书籍成功")
+      prompt.value = "修改书籍成功";
+      snackbar.value = true;
+      loadItems({
+        page: 1,
+        itemsPerPage: itemsPerPage.value,
+        sortBy: sortBy.value
+      })
+    } else {
+      console.log("修改书籍失败");
+      prompt.value = "修改书籍失败：" + response.data.message;
+      snackbar.value = true;
+    }
+  }).catch((error) => {
+    console.log(error)
+    prompt.value = "修改书籍失败：" + error;
+    snackbar.value = true;
   })
 }
 
@@ -272,7 +425,7 @@ async function request(page, itemsPerPage, sortBy, search) {
   }
 }
 
-async function loadItems({ page, itemsPerPage, sortBy }) {
+async function loadItems({page, itemsPerPage, sortBy}) {
   loading.value = true
   const result = await request(page, itemsPerPage, sortBy, search.value)
   console.log("result: ", result)
@@ -287,4 +440,3 @@ async function loadItems({ page, itemsPerPage, sortBy }) {
 }
 
 </script>
-  

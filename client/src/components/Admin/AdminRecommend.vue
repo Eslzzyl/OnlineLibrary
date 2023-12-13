@@ -100,8 +100,8 @@
             <v-container>
               <v-row>
                 <v-col>
-                  <v-textarea variant="outlined" clearable v-model="remark" label="回复" hint="必填"
-                    persistent-hint :rules="notNullRule"></v-textarea>
+                  <v-textarea variant="outlined" clearable v-model="remark" label="回复" hint="必填" persistent-hint
+                    :rules="[notNullRule]"></v-textarea>
                 </v-col>
               </v-row>
             </v-container>
@@ -110,8 +110,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue-darken-1" variant="text" @click="processDialog = false;">取消</v-btn>
-            <v-btn color="blue-darken-1" variant="text"
-              @click="processDialog = false; processConfirmed()">提交</v-btn>
+            <v-btn color="blue-darken-1" variant="text" @click="processDialog = false; processConfirmed()">提交</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -162,17 +161,15 @@ const prompt = ref('')
 
 const remark = ref('')
 
-const notNullRule = [
-  (value) => {
-    if (value !== '') {
-      submitButtonDisabled.value = false;
-      return true;
-    } else {
-      submitButtonDisabled.value = true;
-      return '请填入信息';
-    }
-  },
-]
+const notNullRule = (value) => {
+  if (value !== '') {
+    submitButtonDisabled.value = false;
+    return true;
+  } else {
+    submitButtonDisabled.value = true;
+    return '请填入信息';
+  }
+}
 
 function moreInfo(item) {
   currItem.value = item
@@ -188,26 +185,26 @@ function processConfirmed() {
   const url = `/admin/recommend?recommendId=${currItem.value.id}&adminRemark=${remark.value}`;
   console.log(url);
   axiosInstance.put(url)
-  .then((response) => {
-    if (response.data.code === 0) {
-      console.log("处理成功")
-      prompt.value = "处理成功";
+    .then((response) => {
+      if (response.data.code === 0) {
+        console.log("处理成功")
+        prompt.value = "处理成功";
+        snackbar.value = true;
+        loadItems({
+          page: 1,
+          itemsPerPage: itemsPerPage.value,
+          sortBy: sortBy.value
+        })
+      } else {
+        console.log("处理失败");
+        prompt.value = "处理失败：" + response.data.message;
+        snackbar.value = true;
+      }
+    }).catch((error) => {
+      console.log(error)
+      prompt.value = "处理失败：" + error;
       snackbar.value = true;
-      loadItems({
-        page: 1,
-        itemsPerPage: itemsPerPage.value,
-        sortBy: sortBy.value
-      })
-    } else {
-      console.log("处理失败");
-      prompt.value = "处理失败：" + response.data.message;
-      snackbar.value = true;
-    }
-  }).catch((error) => {
-    console.log(error)
-    prompt.value = "处理失败：" + error;
-    snackbar.value = true;
-  })
+    })
 }
 
 watch(page, () => {

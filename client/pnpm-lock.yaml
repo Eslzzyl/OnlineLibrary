@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@mdi/font':
-    specifier: 7.0.96
-    version: 7.0.96
+    specifier: 7.3.67
+    version: 7.3.67
   '@types/crypto-js':
     specifier: ^4.2.1
     version: 4.2.1
@@ -24,8 +24,8 @@ dependencies:
     specifier: '*'
     version: 0.10.0
   three:
-    specifier: ^0.121.0
-    version: 0.121.1
+    specifier: ^0.159.0
+    version: 0.159.0
   vanta:
     specifier: ^0.5.24
     version: 0.5.24
@@ -47,8 +47,8 @@ devDependencies:
     specifier: ^7.21.4
     version: 7.23.5
   '@types/node':
-    specifier: ^18.15.0
-    version: 18.19.3
+    specifier: ^20.10.4
+    version: 20.10.4
   '@types/three':
     specifier: ^0.158.0
     version: 0.158.3
@@ -62,8 +62,8 @@ devDependencies:
     specifier: ^1.0.3
     version: 1.1.1(vite@4.5.1)
   vite:
-    specifier: ^4.2.0
-    version: 4.5.1(@types/node@18.19.3)
+    specifier: ^4.5.1
+    version: 4.5.1(@types/node@20.10.4)
   vite-plugin-vuetify:
     specifier: ^1.0.2
     version: 1.0.2(vite@4.5.1)(vue@3.3.10)(vuetify@3.4.6)
@@ -279,8 +279,8 @@ packages:
     resolution: {integrity: sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==}
     dev: false
 
-  /@mdi/font@7.0.96:
-    resolution: {integrity: sha512-rzlxTfR64hqY8yiBzDjmANfcd8rv+T5C0Yedv/TWk2QyAQYdc66e0kaN1ipmnYU3RukHRTRcBARHzzm+tIhL7w==}
+  /@mdi/font@7.3.67:
+    resolution: {integrity: sha512-SWxvzRbUQRfewlIV+OF4/YF4DkeTjMWoT8Hh9yeU/5UBVdJZj9Uf4a9+cXjknSIhIaMxZ/4N1O/s7ojApOOGjg==}
     dev: false
 
   /@nodelib/fs.scandir@2.1.5:
@@ -308,8 +308,8 @@ packages:
     resolution: {integrity: sha512-FSPGd9+OcSok3RsM0UZ/9fcvMOXJ1ENE/ZbLfOPlBWj7BgXtEAM8VYfTtT760GiLbQIMoVozwVuisjvsVwqYWw==}
     dev: false
 
-  /@types/node@18.19.3:
-    resolution: {integrity: sha512-k5fggr14DwAytoA/t8rPrIz++lXK7/DqckthCmoZOKNsEbJkId4Z//BqgApXBUGrGddrigYa1oqheo/7YmW4rg==}
+  /@types/node@20.10.4:
+    resolution: {integrity: sha512-D08YG6rr8X90YB56tSIuBaddy/UXAA9RKJoFvrsnogAum/0pmjkgi4+2nx96A330FmioegBWmEYQ+syqCFaveg==}
     dependencies:
       undici-types: 5.26.5
 
@@ -337,7 +337,7 @@ packages:
       vite: ^4.0.0 || ^5.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.5.1(@types/node@18.19.3)
+      vite: 4.5.1(@types/node@20.10.4)
       vue: 3.3.10(typescript@5.3.3)
     dev: true
 
@@ -930,8 +930,8 @@ packages:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
 
-  /three@0.121.1:
-    resolution: {integrity: sha512-+rYhNpW5W1aBdLkPQDld/GA4Sj/uOKJJKVpCAZUbpk/HZEiYRUlPt8+s+9nmxRglWmRHdBa3ERvUwqg4nmoA5w==}
+  /three@0.159.0:
+    resolution: {integrity: sha512-eCmhlLGbBgucuo4VEA9IO3Qpc7dh8Bd4VKzr7WfW4+8hMcIfoAVi1ev0pJYN9PTTsCslbcKgBwr2wNZ1EvLInA==}
     dev: false
 
   /to-fast-properties@2.0.0:
@@ -964,7 +964,7 @@ packages:
     dependencies:
       fast-glob: 3.3.2
       unplugin: 1.5.1
-      vite: 4.5.1(@types/node@18.19.3)
+      vite: 4.5.1(@types/node@20.10.4)
     dev: true
 
   /unplugin@1.5.1:
@@ -994,13 +994,13 @@ packages:
       '@vuetify/loader-shared': 1.7.1(vue@3.3.10)(vuetify@3.4.6)
       debug: 4.3.4
       upath: 2.0.1
-      vite: 4.5.1(@types/node@18.19.3)
+      vite: 4.5.1(@types/node@20.10.4)
       vuetify: 3.4.6(typescript@5.3.3)(vite-plugin-vuetify@1.0.2)(vue@3.3.10)
     transitivePeerDependencies:
       - supports-color
       - vue
 
-  /vite@4.5.1(@types/node@18.19.3):
+  /vite@4.5.1(@types/node@20.10.4):
     resolution: {integrity: sha512-AXXFaAJ8yebyqzoNB9fu2pHoo/nWX+xZlaRwoeYUxEqBO+Zj4msE5G+BhGBll9lYEKv9Hfks52PAF2X7qDYXQA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -1028,7 +1028,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 18.19.3
+      '@types/node': 20.10.4
       esbuild: 0.18.20
       postcss: 8.4.32
       rollup: 3.29.4

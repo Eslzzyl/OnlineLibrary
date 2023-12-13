@@ -176,6 +176,11 @@
 import axiosInstance from '@/plugins/util/axiosInstance'
 import {ref, watch} from 'vue';
 import {getSkyColor} from '@/plugins/util/color';
+import {
+  notNullRule,
+  isPositiveIntegerRule,
+  isNonNegativeIntegerRule
+} from '@/plugins/util/rules';
 
 import '@/style.css';
 
@@ -210,32 +215,6 @@ const snackbar = ref(false)
 const prompt = ref('')
 
 const submitButtonDisabled = ref(false)
-
-const notNullRule = (value) => {
-  if (value !== '') {
-    submitButtonDisabled.value = false;
-    return true;
-  } else {
-    submitButtonDisabled.value = true;
-    return '请填入信息';
-  }
-}
-
-const isPositiveIntegerRule = (value) => {
-  if (/^(0|[1-9]\d*)$/.test(value)) {
-    return true;
-  } else {
-    return '请输入正整数！';
-  }
-}
-
-const isNonNegativeIntegerRule = (value) => {
-  if (/^(0|[1-9]\d*)$/.test(value)) {
-    return true;
-  } else {
-    return '请输入正整数！';
-  }
-}
 
 function add() {
   addDialog.value = true

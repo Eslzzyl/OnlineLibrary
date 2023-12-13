@@ -49,6 +49,7 @@
 import { ref, onMounted } from 'vue'
 import axiosInstance from '@/plugins/util/axiosInstance';
 import '@/style.css';
+import { isPositiveIntegerRule } from '@/plugins/util/rules';
 
 const borrowLimit = ref('0')
 const borrowDuration = ref('0')
@@ -59,14 +60,6 @@ const requestError = ref()
 
 const snackbar = ref(false)
 const prompt = ref('')
-
-const isPositiveIntegerRule = (value: string) => {
-  if (/^(0|[1-9]\d*)$/.test(value)) {
-    return true;
-  } else {
-    return '请输入正整数！';
-  }
-}
 
 onMounted(() => {
   const url = '/admin/settings';

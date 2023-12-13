@@ -11,7 +11,7 @@
               <v-icon icon="mdi-account"></v-icon>
             </v-col>
             <v-col cols="11">
-              <v-text-field v-model="userAccount" :rules="notNullRule" label="账号" />
+              <v-text-field v-model="userAccount" :rules="[notNullRule]" label="账号" />
             </v-col>
           </v-row>
           <v-row>
@@ -19,7 +19,7 @@
               <v-icon icon="mdi-lock"></v-icon>
             </v-col>
             <v-col cols="11">
-              <v-text-field v-model="password" :rules="notNullRule" label="密码"
+              <v-text-field v-model="password" :rules="[notNullRule]" label="密码"
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 @click:append="showPassword = !showPassword"  />
@@ -51,9 +51,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
 import { getSkyColor } from '@/plugins/util/color';
 import axiosInstance from '@/plugins/util/axiosInstance';
+import { notNullRule } from '@/plugins/util/rules';
 
 const skyColor = getSkyColor()
 
@@ -81,18 +81,6 @@ const passwordRule = [
     } else {
       submitButtonDisabled.value = true;
       return '两次输入的密码不一致';
-    }
-  },
-]
-
-const notNullRule = [
-  (value: string | any[]) => {
-    if (value !== '') {
-      submitButtonDisabled.value = false;
-      return true;
-    } else {
-      submitButtonDisabled.value = true;
-      return '请填入信息';
     }
   },
 ]

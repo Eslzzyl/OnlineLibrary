@@ -130,7 +130,7 @@
 import axiosInstance from '@/plugins/util/axiosInstance'
 import { ref, watch } from 'vue';
 import { getSkyColor } from '@/plugins/util/color';
-
+import { notNullRule } from '@/plugins/util/rules';
 import '@/style.css';
 
 const skyColor = getSkyColor();
@@ -160,16 +160,6 @@ const snackbar = ref(false)
 const prompt = ref('')
 
 const remark = ref('')
-
-const notNullRule = (value) => {
-  if (value !== '') {
-    submitButtonDisabled.value = false;
-    return true;
-  } else {
-    submitButtonDisabled.value = true;
-    return '请填入信息';
-  }
-}
 
 function moreInfo(item) {
   currItem.value = item

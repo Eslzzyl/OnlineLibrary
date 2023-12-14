@@ -193,7 +193,6 @@ const remark = ref('')
 
 function moreInfo(item) {
   currItem.value = item
-  console.log(currItem.value)
   moreInfoDialog.value = true
 }
 
@@ -207,7 +206,6 @@ function newRecommendConfirmed() {
     Remark: remark.value
   }).then((response) => {
     if (response.data.code === 0) {
-      console.log("新增荐购记录成功")
       prompt.value = "新增荐购记录成功";
       snackbar.value = true;
       loadItems({
@@ -216,12 +214,12 @@ function newRecommendConfirmed() {
         sortBy: sortBy.value
       })
     } else {
-      console.log("新增荐购记录失败");
+      console.error("新增荐购记录失败: " + response.data.message);
       prompt.value = "新增荐购记录失败：" + response.data.message;
       snackbar.value = true;
     }
   }).catch((error) => {
-    console.log(error)
+    console.error(error)
     prompt.value = "新增荐购记录失败：" + error;
     snackbar.value = true;
   })
@@ -298,7 +296,7 @@ async function request(page, itemsPerPage, sortBy, search) {
       console.error('请求失败！')
     }
   } catch (error) {
-    console.log(error)
+    console.error(error)
     requestError.value = error.message
     isErrorHappened.value = true
   }
@@ -307,13 +305,11 @@ async function request(page, itemsPerPage, sortBy, search) {
 async function loadItems({ page, itemsPerPage, sortBy }) {
   loading.value = true
   const result = await request(page, itemsPerPage, sortBy, search.value)
-  console.log("result: ", result)
   totalItems.value = result.recordCount
   pageCount.value = Math.floor(result.recordCount / result.pageSize) + 1
   const packedData = result.data
   loading.value = false
   if (packedData.length !== 0) {
-    console.log(packedData)
     tableData.value = packedData
   }
 }

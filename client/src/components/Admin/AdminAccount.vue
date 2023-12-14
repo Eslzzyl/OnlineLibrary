@@ -123,20 +123,19 @@ onMounted(() => {
   }
   const url = '/Account/GetInfo';
   axiosInstance.get(url).then((response) => {
-    console.log(response)
     if (response.data.code === 0) {
       adminEmail.value = response.data.data.email;
       adminPhone.value = response.data.data.phoneNumber;
       adminAvatar.value = response.data.data.avatar;
     } else {
       isGetInfoErrorHappened.value = true
-      console.log('请求失败！');
+      console.error('请求失败！' + response.data.message);
       requestError.value = response.data.message
       prompt.value = '请求失败！' + response.data.message;
       snackbar.value = true;
     }
   }).catch((error) => {
-    console.log(error)
+    console.error(error)
     requestError.value = error
     isGetInfoErrorHappened.value = true
   })
@@ -150,12 +149,10 @@ async function updateInfo() {
     Password: newPassword.value,
     Avatar: adminAvatar.value,
   }).then((response) => {
-    console.log(response)
-    console.log('更新成功');
     prompt.value = '更新成功';
     snackbar.value = true;
   }).catch((error) => {
-    console.log(error)
+    console.error(error)
     requestError.value = error
     isUpdateInfoErrorHappened.value = true
   })

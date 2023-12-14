@@ -177,7 +177,7 @@ async function request(page, itemsPerPage, sortBy, search) {
       console.error('请求失败！')
     }
   } catch (error) {
-    console.log(error)
+    console.error(error)
     requestError.value = error.message
     isErrorHappened.value = true
   }
@@ -186,13 +186,11 @@ async function request(page, itemsPerPage, sortBy, search) {
 async function loadItems({ page, itemsPerPage, sortBy }) {
   loading.value = true
   const result = await request(page, itemsPerPage, sortBy, search.value)
-  console.log("result: ", result)
   totalItems.value = result.recordCount
   pageCount.value = Math.floor(result.recordCount / result.pageSize) + 1
   const packedData = result.data
   loading.value = false
   if (packedData.length !== 0) {
-    console.log(packedData)
     tableData.value = packedData
   }
 }

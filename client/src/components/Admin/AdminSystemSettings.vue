@@ -64,20 +64,17 @@ const prompt = ref('')
 onMounted(() => {
   const url = '/admin/settings';
   axiosInstance.get(url).then((response) => {
-    console.log(response)
-
     if (response.data.code === 0) {
       borrowLimit.value = response.data.data.borrowLimit;
       borrowDuration.value = response.data.data.borrowDurationDays;
     } else {
       isGetInfoErrorHappened.value = true
-      console.log('请求失败！');
+      console.error('请求失败: ' + response.data.message);
       requestError.value = response.data.message
       prompt.value = '请求失败！' + response.data.message;
       snackbar.value = true;
     }
   }).catch((error) => {
-    console.log(error)
     requestError.value = error
     isGetInfoErrorHappened.value = true
   })
@@ -86,12 +83,10 @@ onMounted(() => {
 async function updateInfo() {
   const url = `/admin/settings?borrowLimit=${borrowLimit.value}&borrowDurationDays=${borrowDuration.value}`;
   axiosInstance.put(url).then((response) => {
-    console.log(response)
-    console.log('更新成功');
     prompt.value = '更新成功';
     snackbar.value = true;
   }).catch((error) => {
-    console.log(error)
+    console.error(error)
     requestError.value = error
     isUpdateInfoErrorHappened.value = true
   })

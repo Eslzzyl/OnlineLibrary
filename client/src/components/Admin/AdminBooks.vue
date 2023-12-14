@@ -242,7 +242,6 @@ function addConfirmed() {
   };
   axiosInstance.post(url, bookDto).then((response) => {
     if (response.data.code === 0) {
-      console.log("新增书籍成功")
       prompt.value = "新增书籍成功";
       snackbar.value = true;
       loadItems({
@@ -251,12 +250,11 @@ function addConfirmed() {
         sortBy: sortBy.value
       })
     } else {
-      console.log("新增书籍失败");
       prompt.value = "新增书籍失败：" + response.data.message;
       snackbar.value = true;
     }
   }).catch((error) => {
-    console.log(error)
+    console.error(error)
     prompt.value = "新增书籍失败：" + error;
     snackbar.value = true;
   })
@@ -275,7 +273,6 @@ function editConfirmed() {
   };
   axiosInstance.put(url, bookDto).then((response) => {
     if (response.data.code === 0) {
-      console.log("修改书籍成功")
       prompt.value = "修改书籍成功";
       snackbar.value = true;
       loadItems({
@@ -284,12 +281,12 @@ function editConfirmed() {
         sortBy: sortBy.value
       })
     } else {
-      console.log("修改书籍失败");
+      console.error("修改书籍失败: " + response.data.message);
       prompt.value = "修改书籍失败：" + response.data.message;
       snackbar.value = true;
     }
   }).catch((error) => {
-    console.log(error)
+    console.error(error)
     prompt.value = "修改书籍失败：" + error;
     snackbar.value = true;
   })
@@ -301,7 +298,6 @@ function deleteConfirmed() {
     id: currItem.value.id
   }).then((response) => {
     if (response.data.code === 0) {
-      console.log("删除成功");
       prompt.value = "删除成功";
       snackbar.value = true;
       loadItems({
@@ -310,12 +306,12 @@ function deleteConfirmed() {
         sortBy: sortBy.value
       })
     } else {
-      console.log("删除失败");
+      console.error("删除失败: " + response.data.message);
       prompt.value = "删除失败" + response.data.message;
       snackbar.value = true;
     }
   }).catch((error) => {
-    console.log(error)
+    console.error(error)
     prompt.value = "删除失败：" + error;
     snackbar.value = true;
   })
@@ -398,7 +394,7 @@ async function request(page, itemsPerPage, sortBy, search) {
       console.error('请求失败！')
     }
   } catch (error) {
-    console.log(error)
+    console.error(error)
     requestError.value = error.message
     isErrorHappened.value = true
   }
@@ -407,13 +403,11 @@ async function request(page, itemsPerPage, sortBy, search) {
 async function loadItems({page, itemsPerPage, sortBy}) {
   loading.value = true
   const result = await request(page, itemsPerPage, sortBy, search.value)
-  console.log("result: ", result)
   totalItems.value = result.recordCount
   pageCount.value = Math.floor(result.recordCount / result.pageSize) + 1
   const packedData = result.data
   loading.value = false
   if (packedData.length !== 0) {
-    console.log(packedData)
     tableData.value = packedData
   }
 }

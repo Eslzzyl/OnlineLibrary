@@ -77,7 +77,6 @@ function onLoginSubmit() {
     account: userAccount.value,
     password: password.value,
   }).then((response) => {
-    console.log(response);
     const { userName: name, token: token, role: userType, avatar: avatar } = response.data;
     window.localStorage.setItem("name", name);
     window.localStorage.setItem("token", token);

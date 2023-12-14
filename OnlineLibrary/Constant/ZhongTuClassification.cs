@@ -2,10 +2,10 @@
 
 public class ZhongTuClassification
 {
-    private Dictionary<string, string> ClassificationMap { get; }
-
-    public ZhongTuClassification() {
-        ClassificationMap = new Dictionary<string, string> {
+    public ZhongTuClassification()
+    {
+        ClassificationMap = new Dictionary<string, string>
+        {
             { "A", "马列主义、毛泽东思想、邓小平理论" },
             { "B", "哲学、宗教" },
             { "C", "社会科学总论" },
@@ -31,7 +31,10 @@ public class ZhongTuClassification
         };
     }
 
-    public string GetClassificationName(string classification) {
+    private Dictionary<string, string> ClassificationMap { get; }
+
+    public string GetClassificationName(string classification)
+    {
         return ClassificationMap[classification];
     }
 }

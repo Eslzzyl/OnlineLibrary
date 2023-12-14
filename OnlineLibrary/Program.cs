@@ -19,10 +19,11 @@ builder.Logging
     .ClearProviders()
     .AddSimpleConsole()
     .AddDebug();
-builder.Host.UseSerilog((ctx, lc) => {
+builder.Host.UseSerilog((ctx, lc) =>
+{
     lc.ReadFrom.Configuration(ctx.Configuration);
     var logFilePath = Path.Combine(projectRootPath, "./Data/Logs.db");
-    lc.WriteTo.SQLite(logFilePath, tableName: "LogEvents");
+    lc.WriteTo.SQLite(logFilePath, "LogEvents");
 });
 
 // Add services to the container.
@@ -32,14 +33,17 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
 // CORS Configuration
-builder.Services.AddCors(opt => {
-    opt.AddDefaultPolicy(policy => {
+builder.Services.AddCors(opt =>
+{
+    opt.AddDefaultPolicy(policy =>
+    {
         policy
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowAnyOrigin();
     });
-    opt.AddPolicy(name: "GetOnly", policy => {
+    opt.AddPolicy("GetOnly", policy =>
+    {
         policy
             .AllowAnyHeader()
             .WithMethods("GET")
@@ -47,7 +51,8 @@ builder.Services.AddCors(opt => {
     });
 });
 
-builder.Services.AddIdentity<ApiUser, IdentityRole>(options => {
+builder.Services.AddIdentity<ApiUser, IdentityRole>(options =>
+{
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
@@ -55,7 +60,8 @@ builder.Services.AddIdentity<ApiUser, IdentityRole>(options => {
     options.Password.RequiredLength = 6;
 }).AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddAuthentication(options => {
+builder.Services.AddAuthentication(options =>
+{
     options.DefaultAuthenticateScheme =
         options.DefaultChallengeScheme =
             options.DefaultForbidScheme =
@@ -63,8 +69,10 @@ builder.Services.AddAuthentication(options => {
                     options.DefaultSignInScheme =
                         options.DefaultSignOutScheme =
                             JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options => {
-    options.TokenValidationParameters = new TokenValidationParameters() {
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
         ValidateIssuer = true,
         ValidIssuer = builder.Configuration["JWT:Issuer"],
         ValidateAudience = true,
@@ -77,19 +85,24 @@ builder.Services.AddAuthentication(options => {
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
         In = ParameterLocation.Header,
         Description = "JWT Authorization header using the Bearer scheme.",
         Type = SecuritySchemeType.Http,
         Name = "Authorization",
         Scheme = "bearer",
-        BearerFormat = "JWT",
+        BearerFormat = "JWT"
     });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
-            new OpenApiSecurityScheme {
-                Reference = new OpenApiReference {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
@@ -100,11 +113,13 @@ builder.Services.AddSwaggerGen(options => {
 });
 
 // Database Configuration
-builder.Services.AddDbContext<ApplicationDbContext>(opt => {
+builder.Services.AddDbContext<ApplicationDbContext>(opt =>
+{
     var appDatabaseFilePath = Path.Combine(projectRootPath, "./Data/OnlineLibrary.db");
     opt.UseSqlite($"Filename={appDatabaseFilePath}");
 });
-builder.Services.AddDbContext<LogsDbContext>(opt => {
+builder.Services.AddDbContext<LogsDbContext>(opt =>
+{
     var logDatabaseFilePath = Path.Combine(projectRootPath, "./Data/Logs.db");
     opt.UseSqlite($"Filename={logDatabaseFilePath}");
 });
@@ -120,7 +135,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) {
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
 }

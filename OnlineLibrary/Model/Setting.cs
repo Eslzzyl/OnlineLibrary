@@ -9,7 +9,7 @@ public class Setting
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; init; }
-    
+
     [Required]
     public uint BorrowLimit { get; set; }
 

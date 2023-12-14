@@ -16,15 +16,16 @@ public class BookCommentController(
     [Authorize]
     [HttpGet]
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-    public async Task<ResultDto<BookCommentResponseDto>> GetBookComments(int bookId) {
+    public async Task<ResultDto<BookCommentResponseDto>> GetBookComments(int bookId)
+    {
         var book = await context.Books.FindAsync(bookId);
-        if (book == null) {
-            return new ResultDto<BookCommentResponseDto>() {
+        if (book == null)
+            return new ResultDto<BookCommentResponseDto>
+            {
                 Code = 404,
                 Message = "Book not found.",
                 Data = null
             };
-        }
 
         var commentsList = await context.BookComments
             .Where(x => x.BookId == bookId)
@@ -34,12 +35,12 @@ public class BookCommentController(
 
         uint index = 0;
         var dict = new Dictionary<int, uint>();
-        foreach (var comment in commentsList) {
+        foreach (var comment in commentsList)
             dict[comment.Id] = index++;
-        }
         index = 0;
         var comments = commentsList
-            .Select(comment => new CommentUnit {
+            .Select(comment => new CommentUnit
+            {
                 Index = index++,
                 Id = comment.Id,
                 UserName = comment.User.UserName,
@@ -50,10 +51,12 @@ public class BookCommentController(
             })
             .ToList();
 
-        return new ResultDto<BookCommentResponseDto>() {
+        return new ResultDto<BookCommentResponseDto>
+        {
             Code = 0,
             Message = "OK",
-            Data = new BookCommentResponseDto() {
+            Data = new BookCommentResponseDto
+            {
                 BookId = bookId,
                 Comments = comments
             }

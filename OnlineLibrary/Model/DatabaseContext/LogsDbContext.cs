@@ -5,18 +5,22 @@ namespace OnlineLibrary.Model.DatabaseContext;
 public class LogsDbContext : DbContext
 {
     public LogsDbContext(DbContextOptions<LogsDbContext> options)
-        : base(options) { }
-    
-    public void RunVacuum() {
-        Database.ExecuteSqlRaw("VACUUM");
-    }
+        : base(options)
+    { }
 
     public DbSet<LogEvent> LogEvents { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+    public void RunVacuum()
+    {
+        Database.ExecuteSqlRaw("VACUUM");
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
         base.OnModelCreating(modelBuilder);
-        
-        modelBuilder.Entity<LogEvent>(entity => {
+
+        modelBuilder.Entity<LogEvent>(entity =>
+        {
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Level).HasColumnType("VARCHAR(10)");
         });

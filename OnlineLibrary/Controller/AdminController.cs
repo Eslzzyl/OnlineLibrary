@@ -166,6 +166,17 @@ public class AdminController(ILogger<AdminController> logger, ApplicationDbConte
                 UpdateTime = recommend.UpdateTime,
             });
         }
+        var bookComments = await context.BookComments.Where(x => x.UserId == userId).ToListAsync();
+        context.RemoveRange(bookComments);
+        foreach (var comment in bookComments) {
+            context.BookComments.Add(new BookComment() {
+                UserId = deletedUser.Id,
+                BookId = comment.BookId,
+                RefCommentId = comment.RefCommentId,
+                Content = comment.Content,
+                CreateTime = comment.CreateTime,
+            });
+        }
         
         await context.SaveChangesAsync();
         

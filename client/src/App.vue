@@ -2,7 +2,9 @@
   <v-app>
     <v-main class="h-screen">
       <router-view v-slot="{ Component }">
-        <component :is="Component" />
+        <transition name="fade">
+          <component :is="Component" />
+        </transition>
       </router-view>
     </v-main>
   </v-app>

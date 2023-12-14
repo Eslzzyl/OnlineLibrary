@@ -363,4 +363,43 @@ public class UserController(
             },
         };
     }
+    
+    [Authorize]
+    [HttpPost("comment")]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+    public async Task<ResultDto<BookComment>> CommentBook(BookCommentRequestDto requestDto) {
+        var userId = GetUserId();
+        var user = await context.Users.FindAsync(userId);
+        if (user == null) {
+            return new ResultDto<BookComment>() {
+                Code = 1,
+                Message = "User Not Found",
+                Data = null,
+            };
+        }
+        var book = await context.Books.FindAsync(requestDto.BookId);
+        if (book == null) {
+            return new ResultDto<BookComment>() {
+                Code = 1,
+                Message = "Book Not Found",
+                Data = null,
+            };
+        }
+        var comment = new BookComment() {
+            UserId = userId,
+            BookId = requestDto.BookId,
+            RefCommentId = requestDto.RefCommentId,
+            Content = requestDto.Content,
+            CreateTime = DateTime.Now,
+            User = user,
+        };
+        context.BookComments.Add(comment);
+        await context.SaveChangesAsync();
+        
+        return new ResultDto<BookComment>() {
+            Code = 0,
+            Message = "OK",
+            Data = null,
+        };
+    }
 }

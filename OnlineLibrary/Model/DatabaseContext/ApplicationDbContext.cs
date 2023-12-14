@@ -30,6 +30,13 @@ public class ApplicationDbContext : IdentityDbContext<ApiUser>
             .HasForeignKey(x => x.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.NoAction);
+        
+        modelBuilder.Entity<BookComment>()
+            .HasOne(x => x.User)
+            .WithMany() // 如果 ApiUser 类中没有对应的集合导航属性，可以使用无参数的 WithMany 方法
+            .HasForeignKey(x => x.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
     }
     
     public DbSet<Book> Books => Set<Book>();
@@ -45,4 +52,6 @@ public class ApplicationDbContext : IdentityDbContext<ApiUser>
     public DbSet<Setting> Settings => Set<Setting>();
     
     public DbSet<Recommend> Recommends => Set<Recommend>();
+    
+    public DbSet<BookComment> BookComments => Set<BookComment>();
 }

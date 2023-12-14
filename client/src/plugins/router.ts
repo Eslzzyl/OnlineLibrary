@@ -33,7 +33,7 @@ const router = createRouter({
 })
 
 // 添加全局前置守卫
-router.beforeEach((to) => {
+router.beforeEach((to, from) => {
   // 如果路由配置中没有定义标题，则使用默认标题
   const destTitle = to.meta.title as string;
   document.title = destTitle || '网上图书馆';
@@ -41,6 +41,12 @@ router.beforeEach((to) => {
   const token = localStorage.getItem('token');
   if (to.name !== 'Greeting' && token === null) {
     return { name: 'Greeting' };
+  }
+  if (from.name === 'User' && token !== null) {
+    return { name: 'User' };
+  }
+  if (from.name === 'Admin' && token !== null) {
+    return { name: 'Admin' };
   }
 });
 

@@ -12,7 +12,6 @@ namespace OnlineLibrary.Controller;
 [ApiController]
 public class RecommendController(
     ApplicationDbContext context,
-    LogsDbContext logsDbContext,
     ILogger<LogController> logger)
     : ControllerBase
 {

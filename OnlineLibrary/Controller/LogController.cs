@@ -13,7 +13,6 @@ namespace OnlineLibrary.Controller;
 [Route("[controller]")]
 [ApiController]
 public class LogController(
-    ApplicationDbContext context,
     LogsDbContext logsDbContext,
     ILogger<LogController> logger,
     IConfiguration configuration)
@@ -41,6 +40,9 @@ public class LogController(
         query = (IQueryable<LogEvent>)DynamicQueryableExtensions.Skip(query
                 .OrderBy($"{sortColumn} {sortOrder}"), pageIndex * pageSize)
             .Take(pageSize);
+        
+        logger.LogInformation("Get {Count} logs", await query.CountAsync());
+        
         return new ResultDto<LogEvent[]>
         {
             Code = 0,

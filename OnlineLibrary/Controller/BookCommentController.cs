@@ -50,6 +50,8 @@ public class BookCommentController(
                 CreateTime = comment.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
             })
             .ToList();
+        
+        logger.LogInformation("Get {Count} comments for book {BookId}", comments.Count, bookId);
 
         return new ResultDto<BookCommentResponseDto>
         {

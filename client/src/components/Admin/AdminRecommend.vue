@@ -23,7 +23,7 @@
               @update:options="loadItems" loading-text="正在加载数据..." fixed-header height="60vh">
               <template v-slot:item.moreInfo="{ item }">
                 <v-btn variant="tonal" @click="moreInfo(item)">详情</v-btn>
-                <v-btn :disabled="item.isProcessed" variant="tonal" @click="process(item)">处理</v-btn>
+                <v-btn :disabled="item.isProcessed === '是'" variant="tonal" @click="process(item)">处理</v-btn>
               </template>
               <template v-slot:bottom>
                 <div class="text-center pt-2">

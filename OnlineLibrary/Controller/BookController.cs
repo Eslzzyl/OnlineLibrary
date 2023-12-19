@@ -165,9 +165,14 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
                     x.Book.Author.Contains(filterQuery) ||
                     x.Book.Publisher.Contains(filterQuery));
         var recordCount = await query.CountAsync();
-        query = (IQueryable<CurrentBorrow>)DynamicQueryableExtensions
-            .Skip(query.OrderBy($"Book.{sortColumn} {sortOrder}"), pageIndex * pageSize)
-            .Take(pageSize);
+        if (sortColumn == "userName")
+            query = (IQueryable<CurrentBorrow>)DynamicQueryableExtensions
+                .Skip(query.OrderBy($"User.{sortColumn} {sortOrder}"), pageIndex * pageSize)
+                .Take(pageSize);
+        else
+            query = (IQueryable<CurrentBorrow>)DynamicQueryableExtensions
+                .Skip(query.OrderBy($"Book.{sortColumn} {sortOrder}"), pageIndex * pageSize)
+                .Take(pageSize);
         var dto = await query.Select(x => new BorrowDto
         {
             Id = x.BookId,
@@ -214,9 +219,14 @@ public class BookController(ILogger<BookController> logger, ApplicationDbContext
                     x.Book.Author.Contains(filterQuery) ||
                     x.Book.Publisher.Contains(filterQuery));
         var recordCount = await query.CountAsync();
-        query = (IQueryable<BorrowHistory>)DynamicQueryableExtensions.Skip(query
-                .OrderBy($"Book.{sortColumn} {sortOrder}"), pageIndex * pageSize)
-            .Take(pageSize);
+        if (sortColumn == "userName")
+            query = (IQueryable<BorrowHistory>)DynamicQueryableExtensions
+                .Skip(query.OrderBy($"User.{sortColumn} {sortOrder}"), pageIndex * pageSize)
+                .Take(pageSize);
+        else
+            query = (IQueryable<BorrowHistory>)DynamicQueryableExtensions
+                .Skip(query.OrderBy($"Book.{sortColumn} {sortOrder}"), pageIndex * pageSize)
+                .Take(pageSize);
         var dto = await query.Select(x => new BorrowDto
         {
             Id = x.BookId,

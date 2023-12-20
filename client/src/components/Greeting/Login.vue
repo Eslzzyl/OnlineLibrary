@@ -96,7 +96,7 @@ function onLoginSubmit() {
     if (error.message == 'Request failed with status code 401') {   // 密码错误的情况
       message = "密码错误"
     } else if (error.message == 'Request failed with status code 400') {
-      message = "你正在尝试登录一个特殊账号"
+      message = "你不能登录名为 DeletedUser 的特殊账号"
     } else {    // axios 本身遇到错误的情况
       message = error.message
     }

@@ -136,7 +136,7 @@ ASP.NET Core Web API，基于 .NET 8.0
 
 ### 后端
 
-确保已经安装了 ASP.NET 8.0 SDK
+确保已经安装了 .NET 8 SDK。在 Windows 系统上，你需要在 Visual Studio Installer 中勾选“ASP.NET 和 Web 开发”工作负载；在其他系统上，从命令行安装 .NET Core SDK 即可。见 [此处](https://dotnet.microsoft.com/zh-cn/learn/aspnet/blazor-tutorial/install)
 
 推荐使用的开发工具是：
 - Microsoft Visual Studio 2022（为了支持 .NET 8.0，需要 17.8 或更新的版本），或者
@@ -144,32 +144,38 @@ ASP.NET Core Web API，基于 .NET 8.0
 
 本项目的大部分代码是在 Rider 上编写的。
 
-克隆项目后，使用 NuGet 恢复依赖：
+克隆项目后，使用 `dotnet` 命令行工具恢复依赖：
 
 ```shell
-nuget restore .\OnlineLibrary.sln
+dotnet restore
 ```
 
 然后使用 IDE 打开项目根目录下的 `OnlineLibrary.sln` 解决方案文件。
 
 接下来需要初始化（Seed）数据库。
 
-1. 移除 `OnlineLibrary/Controller/SeedController.cs` 中 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记（从而跳过执行时的用户身份验证，因为用户数据在数据库里，而数据库还不存在）
+1. 暂时注释掉 `OnlineLibrary/Controller/SeedController.cs` 中 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记（从而跳过执行时的用户身份验证，因为用户数据在数据库里，而数据库还不存在）
 2. 在命令行中切换到 OnlineLibrary 目录（即后端项目的根目录），执行
 
     ```shell
-    dotnet ef database update
+    dotnet ef database update --context ApplicationDbContext
     ```
 
     这会自动在 `./Data/` 目录下创建 `OnlineLibrary.db` 数据库并按顺序执行已有的一系列 Migrations。
-3. 按照下面的步骤启动后端项目，然后在 Swagger 页面依次执行 `/Seed/AuthData`、`/Seed/BookData` 和 `/Seed/SettingsDate` 3个路由，等待数据库导入数据。其中导入书籍数据的时间可能稍长，导入用户数据和导入设置数据应当很快完成。导入完毕后，你应该能够在 Response 中看到导入的数据量。
-4. 将 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记添加回去，正常启动项目即可。
+
+    > 本项目引入了两个 `DbContext`，其中 `ApplicationDbContext` 为主数据库，`LogsDbContext` 为日志数据库。因此，在执行 `database update` 时必须明确指定针对哪个数据库进行操作。我们这里只创建主数据库。你可以在 `OnlineLibrary/Model/DatabaseContext` 目录找到本项目的两个 `DbContext`。
+
+3. 在 `OnlineLibrary` 目录中执行 `dotnet run` 启动后端项目，你应该可以看到内容为“OnlineLibrary”的 ASCII Art。然后在 Swagger 页面依次执行 `/Seed/AuthData`、`/Seed/BookData` 和 `/Seed/SettingsDate` 3个 EndPoint，等待数据库导入数据。其中导入书籍数据的时间可能稍长，导入用户数据和导入设置数据应当很快完成。导入完毕后，你应该能够在 Response 中看到导入的数据量。
+
+    > 这是我的第一个 .NET 项目，此前我完全没写过 C#。因此你可能会看到一些关于空值的警告。抱歉！
+
+4. 按 Ctrl+C 中止后端运行，然后将 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记取消注释，正常启动项目即可。
 
 数据库准备完成后，启动解决方案的 http 配置即可。看到”OnlineLibrary“的 ASCII Art 后，你可以访问 [http://localhost:5057/swagger/index.html](http://localhost:5057/swagger/index.html) 来打开 Swagger 页面。
 
 `./Data/Logs.db` 文件可以随意删除，删除之后会重新创建。如果你觉得它有点大了，直接删除即可。当然旧的日志也就丢掉了。
 
-> 前端默认向后端的 http 端口发请求，因此测试运行时应该启动 http 配置，而非 https 配置。如果希望修改目标端口，可以到 `Client/src/plugins/util/axiosInstance.ts` 文件中修改。
+> 前端默认向后端的 http 端口发请求，因此测试运行时应该启动 http 配置，而非 https 配置。如果希望修改前端的目标端口，可以到 `Client/src/plugins/util/axiosInstance.ts` 文件中修改。
 
 ### 前端
 
@@ -195,7 +201,7 @@ pnpm dev
 
 服务器启动后，将自动显示前端的 URL。
 
-如果你通过 `/Seed/AuthData/` 导入了用户数据，那么数据库中默认存在三个用户：`TestUser`、`TestModerator` 和 `TestAdmin`。它们的密码都是 `123456`。三种用户的权限依次提高。由于时间仓促，我没有为 `Moderator` 用户组添加前端功能，因此实际可用的用户只有 `User` 和 `Admin` 两类。
+如果你通过 `/Seed/AuthData/` 导入了用户数据，那么数据库中默认存在 4 个用户：`TestUser`、`TestModerator`、`TestAdmin` 和 `DeletedUser`。它们的密码都是 `123456`。前三种用户的权限依次提高，而 `DeletdUser` 是普通用户权限且不可登录。由于时间仓促，我没有为 `Moderator` 用户组添加前端功能，因此实际可用的用户只有 `User` 和 `Admin` 两类。
 
 ## 设计文档
 

@@ -203,6 +203,155 @@ pnpm dev
 
 如果你通过 `/Seed/AuthData/` 导入了用户数据，那么数据库中默认存在 4 个用户：`TestUser`、`TestModerator`、`TestAdmin` 和 `DeletedUser`。它们的密码都是 `123456`。前三种用户的权限依次提高，而 `DeletdUser` 是普通用户权限且不可登录。由于时间仓促，我没有为 `Moderator` 用户组添加前端功能，因此实际可用的用户只有 `User` 和 `Admin` 两类。
 
+## 部署
+
+本节介绍如何将项目部署到一台 Ubuntu 22.04 服务器上，使用 Nginx 作为 Web 服务器和反向代理服务器。
+
+本项目是前后端分离项目，前后端可以独立部署。为简单起见，下面的说明中假设前端部署在 `example.com/library`，后端部署在 `example.com/library/api`。
+
+### 前端
+
+#### 修改请求 URL
+
+你需要首先确定后端 API 的 URL。在本例中，这个 URL 是 `https://example.com/library/api`。然后修改 `Client/src/plugins/util/axiosInstance.ts` 文件，将以下代码段
+
+```typescript
+//使用axios下面的create([config])方法创建axios实例，其中config参数为axios最基本的配置信息。
+const axiosInstance = axios.create({
+  baseURL: 'http://localhost:5057', //请求后端数据的基本地址，自定义
+  timeout: 5000                     //请求超时设置，单位ms
+})
+```
+
+改成对应的 URL，如
+
+```typescript
+//使用axios下面的create([config])方法创建axios实例，其中config参数为axios最基本的配置信息。
+const axiosInstance = axios.create({
+  baseURL: 'https://example.com/library/api', //请求后端数据的基本地址，自定义
+  timeout: 5000                     //请求超时设置，单位ms
+})
+```
+
+然后保存。
+
+> 强烈建议使用 https 访问后端 API，详见 [后文](#nginx-反向代理)。
+
+#### 编译项目
+
+进入 `Client` 目录，执行
+
+```shell
+pnpm build
+```
+
+这会编译整个前端项目，生成完全静态的页面，并在 `Client` 目录中生成一个 `dist` 目录。将该目录整体上传到服务器的某个位置，比如 `/home/eslzzyl/WorkSpace/OnlineLibrary/`。
+
+#### 配置 Nginx
+
+然后，在服务器 Nginx 的根 `server` 块（`example.com` 块）中进行如下配置：
+
+```nginx
+location /library {
+  alias /home/eslzzyl/WorkSpace/OnlineLibrary/dist/;
+  index index.html;
+  try_files $uri $uri/ =404;
+}
+```
+
+这会把对 `example.com/library` 的请求映射到 `/home/eslzzyl/WorkSpace/OnlineLibrary/dist/`。由于编译好的前端是完全静态的，因此直接使用 Nginx 作为 Web 服务器即可。
+
+SSL 相关的配置与本项目关系不大，此处不再详述。
+
+配置完成后，重载 Nginx 配置：
+
+```bash
+sudo nginx -s reload
+```
+
+然后访问前端，查看网页是否正常显示。如果没有配置后端，会登录不上账号，这是正常的。
+
+### 后端
+
+#### 发布项目
+
+进入 `OnlineLibrary` 目录，执行
+
+```shell
+dotnet publish --no-self-contained --ucr -a x64 --os linux
+```
+
+> `--no-self-contained` 表示发布文件不带运行时，`--ucr` 表示以开发的 SDK 版本作为运行时版本（在本项目中，是 .NET 8.0），`-a` 指定发布目标的体系结构，`--os` 指定发布目标的操作系统。
+
+你可以在 `OnlineLibrary/bin/Release/net8.0/linux-x64` 中找到发布文件。将 `linux-x64` 目录整体上传到服务器的某个位置，比如 `/home/eslzzyl/WorkSpace/OnlineLibrary/`（和前端放一起）。建议压缩后上传到服务器再解压。
+
+#### 在服务器安装 ASP.NET 运行时
+
+然后，你需要在服务器安装 ASP.NET 8.0 运行时。Ubuntu 有多个 .NET 运行时软件源，我推荐使用由微软提供的那个。因为目前只有微软源支持在 Ubuntu 22.04 上安装 .NET 8.0 运行时。关于添加微软 .NET 软件源，请参考 [此处](https://learn.microsoft.com/zh-cn/dotnet/core/install/linux-ubuntu#register-the-microsoft-package-repository)。添加后请参考 [此处](https://learn.microsoft.com/zh-cn/dotnet/core/install/linux-ubuntu-2204) 来安装 ASP.NET 运行时。
+
+#### 运行后端
+
+安装好运行时后，就可以运行后端了。进入 `linux-x64/publish` 目录，先为 `OnlineLibrary` 可执行文件添加可执行权限：
+
+```bash
+chmod +x ./OnlineLibrary
+```
+
+然后，你需要使用某种终端复用工具，如 `screen` 或 `tmux`，来复用终端。这样，当你断开 SSH 连接后，后端项目会保持正常运行。
+
+以 `tmux` 为例，执行
+
+```bash
+tmux new -s library
+```
+
+来创建一个名为 `library` 的新 `session`。然后使用
+
+```bash
+tmux a -t library
+```
+
+来进入这个 `session`。在该 `session` 中，执行
+
+```bash
+./OnlineLibrary
+```
+
+来运行后端项目。你可能会发现程序异常终止，因为无法在 SQLite 数据中找到 Book 表。这是正常的，因为我们还没有加入数据库。
+
+将本地初始化好的数据库文件 `OnlineLibrary.db` 上传到服务器的 `linux-x64/publish/Data` 目录中。`Data` 目录应该会在程序第一次执行并异常终止之后自动生成。
+
+再次运行后端项目。如果一切正常，你可以很快看到书籍数量统计和“OnlineLibrary”的 ASCII Art。
+
+你可以通过 `tmux` 的 `detach` 快捷键来离开 `library` `session`，同时保持其中的程序继续执行。这个快捷键默认是 `C-b d`（先按下 `Ctrl+B`，松开，再按下 `D`）。
+
+为了在外网访问后端，需要在 Nginx 中配置反向代理。尽管 ASP.NET Core 自带的 Web 服务器 `Kestrel` 也可以处理外网请求（需要额外的配置），但仍然推荐用反向代理。
+
+#### Nginx 反向代理
+
+在服务器 Nginx 的根 `server` 块（`example.com` 块）中进行如下配置：
+
+```nginx
+location /library/api {
+  proxy_ssl_server_name on;
+  rewrite ^/library/api(.*)$ $1 break;
+  proxy_pass http://127.0.0.1:5000/;
+  proxy_redirect off;
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+ASP.NET Core WebAPI 的默认部署端口是 5000，因此这里把对 `example.com/library/api` 的请求转发到了 `127.0.0.1:5000`。
+
+> 我不知道 5000 这个端口是在后端的何处配置的，我通过网上搜索得到了这个端口，如果你需要修改，可能得自行查看修改方法。
+
+> **安全性问题**：如果你正在公网部署这个项目，那么我强烈建议你为后端服务器配置 SSL，因为本项目登录和注册时的密码是明文传输的，使用 http 传输密码可能很不安全。或者，不要在本项目中使用自己其他账号的密码。
+
+完成后，重载 Nginx 配置，然后访问前端并登录账号，查看后端是否正常工作。
+
 ## 设计文档
 
 见 [此处](./OnlineLibrary/Doc/设计文档.md)。在开发中后期，我没有再更新过这个文档，因此它的内容可能已经不准确，而且有缺失。实际功能请以 [功能](#功能) 这一节为准。

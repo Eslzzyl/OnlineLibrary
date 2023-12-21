@@ -199,11 +199,11 @@ dotnet restore
 
     > 这是我的第一个 .NET 项目，此前我完全没写过 C#。因此你可能会看到一些关于空值的警告。抱歉！
 
-4. 按 Ctrl+C 中止后端运行，然后将 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记取消注释，正常启动项目即可。
+4. 按 Ctrl+C 中止后端运行，然后将 `SeedController` 类前面的 `[Authorize(Roles = RoleNames.Admin)]` 标记取消注释，之后正常启动项目即可。
 
-数据库准备完成后，启动解决方案的 http 配置即可。看到”OnlineLibrary“的 ASCII Art 后，你可以访问 [http://localhost:5057/swagger/index.html](http://localhost:5057/swagger/index.html) 来打开 Swagger 页面。
+数据库准备完成后，启动解决方案的 http 配置。看到”OnlineLibrary“的 ASCII Art 后，你可以访问 [http://localhost:5057/swagger/index.html](http://localhost:5057/swagger/index.html) 来打开 Swagger 页面。
 
-`./Data/Logs.db` 文件可以随意删除，删除之后会重新创建。如果你觉得它有点大了，直接删除即可。当然旧的日志也就丢掉了。
+`./Data/Logs.db` 文件可以随意删除，删除之后会重新创建。如果你觉得它有点大了，可以直接删除。当然旧的日志也就丢掉了。
 
 > 前端默认向后端的 http 端口发请求，因此测试运行时应该启动 http 配置，而非 https 配置。如果希望修改前端的目标端口，可以到 `Client/src/plugins/util/axiosInstance.ts` 文件中修改。
 
@@ -347,7 +347,7 @@ tmux a -t library
 ./OnlineLibrary
 ```
 
-来运行后端项目。你可能会发现程序异常终止，因为无法在 SQLite 数据中找到 Book 表。这是正常的，因为我们还没有加入数据库。
+来运行后端项目。你可能会发现程序异常终止，因为无法在 SQLite 数据库中找到 Book 表。这是正常的，因为我们还没有加入数据库。
 
 将本地初始化好的数据库文件 `OnlineLibrary.db` 上传到服务器的 `linux-x64/publish/Data` 目录中。`Data` 目录应该会在程序第一次执行并异常终止之后自动生成。
 
@@ -388,7 +388,7 @@ ASP.NET Core WebAPI 的默认部署端口是 5000，因此这里把对 `example.
 
 ## 代码量统计
 
-Commit [260f914](https://github.com/Eslzzyl/OnlineLibrary/commit/260f914c5facfebf904d6c2e6b57b9b185719934) 的代码量统计，统计工具是 [tokei](https://tokei.rs/)
+Commit [53fb6ab](https://github.com/Eslzzyl/OnlineLibrary/commit/53fb6ab035eb352d957dab12145395c9bef7ab8a) 的代码量统计，统计工具是 [tokei](https://tokei.rs/)
 
 ### 前端
 
@@ -401,7 +401,7 @@ Commit [260f914](https://github.com/Eslzzyl/OnlineLibrary/commit/260f914c5facfeb
  JSON                    3           69           69            0            0
  Markdown                1           60            0           33           27
  SVG                     1            6            6            0            0
- TypeScript             11          423          328           42           53
+ TypeScript             11          424          329           42           53
  YAML                    1         1124          974            0          150
 -------------------------------------------------------------------------------
  Vue                    22          810          756            0           54
@@ -410,7 +410,7 @@ Commit [260f914](https://github.com/Eslzzyl/OnlineLibrary/commit/260f914c5facfeb
  |- JavaScript          22         2394         2089           16          289
  (Total)                           4129         3739           26          364
 ===============================================================================
- Total                  41         2520         2157           75          288
+ Total                  41         2521         2158           75          288
 ===============================================================================
 ```
 
@@ -422,7 +422,7 @@ Commit [260f914](https://github.com/Eslzzyl/OnlineLibrary/commit/260f914c5facfeb
 ===============================================================================
  Language            Files        Lines         Code     Comments       Blanks
 ===============================================================================
- C#                     38         2511         2176           35          300
+ C#                     38         2524         2186           35          303
  JSON                    3           71           71            0            0
  MSBuild                 1           33           29            0            4
 -------------------------------------------------------------------------------
@@ -430,7 +430,7 @@ Commit [260f914](https://github.com/Eslzzyl/OnlineLibrary/commit/260f914c5facfeb
  |- JSON                 1           30           27            0            3
  (Total)                            282           27          151          104
 ===============================================================================
- Total                  43         2867         2276          186          405
+ Total                  43         2880         2286          186          408
 ===============================================================================
 ```
 

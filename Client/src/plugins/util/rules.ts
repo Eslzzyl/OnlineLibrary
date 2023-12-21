@@ -18,6 +18,6 @@ export const isNonNegativeIntegerRule = (value: string) => {
   if (/^(0|[1-9]\d*)$/.test(value)) {
     return true;
   } else {
-    return '请输入正整数！';
+    return '请输入非负整数！';
   }
 }

@@ -4,9 +4,9 @@
 
 本项目是合肥工业大学宣城校区 2023-2024 学年秋季学期计算机科学与技术专业 20 级开设的《实习与实训》课程的项目。
 
-本项目是一个完整的前后端分离 Web 项目，但是功能可能比较简陋，因为时间不是很充裕，而且我也不太想在一个 Web 项目上浪费太多时间。
+本项目是一个完整的前后端分离 Web 项目，支持跨平台开发和部署。
 
-> 本项目的开发已经基本完成。在课程设计结束之后，我会移除这条信息。
+> **本项目已在课程设计中获评“优秀”。**
 
 - [网上图书馆](#网上图书馆)
   - [基于 ASP.NET Core 和 Vue.js 的网上图书馆项目](#基于-aspnet-core-和-vuejs-的网上图书馆项目)
@@ -77,7 +77,7 @@
 
 Vuetify 框架可以较容易地切换全局主题，因此本项目也能支持主题的自动（根据用户操作系统的颜色主题确定）和手动切换。目前只有两种主题：深色和浅色。
 
-项目中与头像有关的实现引用了外部图像，这些图像是保存在我自己架设的图床中的，关于图床的实现，可见[此处](https://github.com/Eslzzyl/imagebed)。我不确定这个图床能维护多久，因此如果图床挂了，你可能需要修改相关的代码来改用其他方案。
+项目中与头像有关的实现引用了外部图像，这些图像保存在我自己架设的图床中，关于图床的实现，可见[此处](https://github.com/Eslzzyl/imagebed)。我不确定这个图床能维护多久，因此如果图床挂了，你可能需要修改相关的代码来改用其他方案。
 
 ## 截图
 
@@ -164,9 +164,13 @@ ASP.NET Core Web API，基于 .NET 8.0
 
 ## 如何运行本项目
 
+下面介绍的流程已经在 Windows 11 和 Arch Linux 平台测试过，可以正常运行。
+
 ### 后端
 
-确保已经安装了 .NET 8 SDK。在 Windows 系统上，你需要在 Visual Studio Installer 中勾选“ASP.NET 和 Web 开发”工作负载；在其他系统上，从命令行安装 .NET Core SDK 即可。见 [此处](https://dotnet.microsoft.com/zh-cn/learn/aspnet/blazor-tutorial/install)
+确保已经安装了 ASP.NET 8 SDK。在 Windows 系统上，你需要在 Visual Studio Installer 中勾选“ASP.NET 和 Web 开发”工作负载；在其他系统上，需要从命令行安装 .NET SDK (默认包含了 .NET Runtime) 和 ASP.NET Runtime。见 [此处](https://dotnet.microsoft.com/zh-cn/learn/aspnet/blazor-tutorial/install)
+
+然后，需要安装 `dotnet-ef` 命令行工具，参考 [此处](https://learn.microsoft.com/zh-cn/ef/core/cli/dotnet)。
 
 推荐使用的开发工具是：
 - Microsoft Visual Studio 2022（为了支持 .NET 8.0，需要 17.8 或更新的版本），或者
@@ -195,7 +199,7 @@ dotnet restore
 
     > 本项目引入了两个 `DbContext`，其中 `ApplicationDbContext` 为主数据库，`LogsDbContext` 为日志数据库。因此，在执行 `database update` 时必须明确指定针对哪个数据库进行操作。我们这里只创建主数据库。你可以在 `OnlineLibrary/Model/DatabaseContext` 目录找到本项目的两个 `DbContext`。
 
-3. 在 `OnlineLibrary` 目录中执行 `dotnet run` 启动后端项目，你应该可以看到内容为“OnlineLibrary”的 ASCII Art。然后在 Swagger 页面依次执行 `/Seed/AuthData`、`/Seed/BookData` 和 `/Seed/SettingsDate` 3个 EndPoint，等待数据库导入数据。其中导入书籍数据的时间可能稍长，导入用户数据和导入设置数据应当很快完成。导入完毕后，你应该能够在 Response 中看到导入的数据量。
+3. 在 `OnlineLibrary` 目录中执行 `dotnet run` 启动后端项目，你应该可以看到内容为“OnlineLibrary”的 ASCII Art。然后你可以访问 [http://localhost:5057/swagger/index.html](http://localhost:5057/swagger/index.html) 来打开 Swagger 页面。在 Swagger 页面中，依次执行 `/Seed/AuthData`、`/Seed/BookData` 和 `/Seed/SettingsData` 3个 EndPoint，等待数据库导入数据。其中导入书籍数据的时间可能稍长，导入用户数据和导入设置数据应当很快完成。导入完毕后，你应该能够在 Response 中看到导入的数据量。
 
     > 这是我的第一个 .NET 项目，此前我完全没写过 C#。因此你可能会看到一些关于空值的警告。抱歉！
 
@@ -215,7 +219,7 @@ dotnet restore
   - Vue Language Features（Volar）：`Vue.volar`
 - JetBrains WebStorm
 
-Rider 也通过官方插件对 Vue 和 TypeScript 有较好的支持，因此也可以用 Rider 做前端。
+Rider 也通过官方插件对 Vue 和 TypeScript 有较好的支持，因此也可以用 Rider 写前端。
 
 本项目前端的几乎全部代码都是在 VSCode 上编写的。
 

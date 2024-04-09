@@ -214,9 +214,7 @@ dotnet restore
 ### 前端
 
 推荐使用的开发工具是：
-- Microsoft VSCode，带有以下扩展：
-  - TypeScript Vue Plugin（Volar）：`Vue.vscode-typescript-vue-plugin`
-  - Vue Language Features（Volar）：`Vue.volar`
+- Microsoft VSCode，带有 [Vue-Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) 扩展
 - JetBrains WebStorm
 
 Rider 也通过官方插件对 Vue 和 TypeScript 有较好的支持，因此也可以用 Rider 写前端。
